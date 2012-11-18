@@ -1,10 +1,10 @@
 F90 = gfortran
 
-fpipes : fpipes.f90
+fpipes-test : fpipes.f90 fpipes-test.f90
 	$(F90) -o $@ $^
 
-example-run : fpipes dummy.sh
-	./fpipes ./dummy.sh
+example-run : fpipes-test dummy.sh
+	./fpipes-test ./dummy.sh
 	
-clean : fpipes.mod fpipes
+clean : fpipes.mod fpipes-test
 	-rm $^
