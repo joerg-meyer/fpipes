@@ -1,0 +1,201 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Named Pipe Support  [16]</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.69.1">
+<link rel="start" href="index.html" title="Cray Fortran Reference Manual">
+<link rel="up" href="index.html" title="Cray Fortran Reference Manual">
+<link rel="prev" href="zbllsmg.html" title="Creating a user Layer  [15]">
+<link rel="next" href="glossary.2.30eY6fDQ.html" title="Glossary">
+</head>
+<body style="font-weight:normal;text-decoration:none;font-family:Arial, Helvetica, MS Serif, Serif;">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">Cray Fortran Reference Manual
+                 - 
+                <a accesskey="t" href="S-3901-74-toc.html#toc">S&#8211;3901&#8211;74</a>
+</th></tr>
+<tr>
+<td width="30%" align="left" valign="bottom">
+<span style="font-size:80%">Creating a <code class="literal">user</code> Layer  [15]</span><br> <a accesskey="p" style="font-size:80%" href="zbllsmg.html">Previous</a> </td>
+<th width="40%" align="center" valign="bottom"> </th>
+<td width="30%" align="right" valign="bottom"> <span style="font-size:80%">Glossary</span><br> <a accesskey="n" style="font-size:80%" href="glossary.2.30eY6fDQ.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="chapter" lang="en">
+<div class="titlepage"><div><div><h1 class="title">
+<a name="ksollsmg"></a><a name="title.111.KKuTrBvi"></a>Named Pipe Support  [16]</h1></div></div></div>
+<p> Named pipes, or UNIX FIFO special files for I/O requests, are created with the <code class="function">mknod</code> system call; these special files allow any two processes to exchange information. The system call creates an inode for the named pipe and establishes it as a named pipe that can be read to or written from. It can then be used by standard Fortran I/O or C I/O. Piped I/O is faster than normal I/O and requires less memory than memory-resident files.</p>
+<p>Fortran programs can communicate with each other using named pipes. After a named pipe is created, Fortran programs can access that pipe almost as if it were a normal file. The unique aspects of process communication using named pipes are discussed in the following list; the examples show how a Fortran program can use standard Fortran I/O on pipes:</p>
+<div class="itemizedlist"><ul type="disc">
+<li>
+<p>A named pipe must be created before a Fortran program opens it. The following syntax for the command creates a named pipe called <code class="filename">fort.13</code>. The <code class="literal">p</code> argument makes it a pipe.</p>
+<pre class="programlisting" style="background-color:#e0e0e0">/bin/mknod fort.13 p    </pre>
+<p>A named pipe can be created from within a Fortran program by using the <code class="literal">pxfsystem</code> function. The following example creates a named pipe:</p>
+<pre class="programlisting" style="background-color:#e0e0e0">INTEGER ILEN,IERROR
+ILEN=0
+CALL PXFSYSTEM ('/bin/mknod fort.13 p',ILEN,IERROR)</pre>
+</li>
+<li><p>Fortran programs can use two named pipes: one to read and one to write. A Fortran program can read from or write to any named pipe, but it cannot do both at the same time. This is a Fortran restriction on pipes, not a system restriction. It occurs because Fortran does not allow read and write access at the same time.</p></li>
+<li>
+<p>I/O transfers through named pipes use memory for buffering. A separate buffer is created for each named pipe. The <code class="literal">PIPE_BUF</code> parameter defines the kernel buffer size in the <code class="filename">/sys/param.h</code> parameter file. The default value of <code class="literal">PIPE_BUF</code> is 8 blocks (<code class="literal">8</code> <code class="literal">*</code> <code class="literal">512</code> words), but the full size may not be needed or used.</p>
+<p>I/O to named pipes does not transfer to or from a disk. However, if I/O transfers fill the buffer, the writing process waits for the receiving process to read the data before refilling the buffer. If the size of the <code class="literal">PIPE_BUF</code> parameter is increased, buffer contention may cause a decrease in I/O performance. If memory has already been allocated for buffers, more space will not be allocated.</p>
+</li>
+<li>
+<p>Binary data transferred between two processes through a named pipe must use the correct file structure. The sending process should specify an undefined file structure (<tt class="command">assign -s u</tt>) for a pipe. The receiving process should specify an unblocked structure (<tt class="command">assign -s unblocked</tt>) for a pipe.</p>
+<p>You can also select a file specification of <code class="literal">system</code> (<tt class="command">assign -F system</tt>) for the sending process.</p>
+<p>The file structure of the receiving or read process can be set to either an undefined or an unblocked file structure. However, if the sending process writes a request that is larger than <code class="literal">PIPE_BUF</code>, it is essential for the receiving process to read the data from a pipe set to an unblocked file structure. A read of a transfer larger than <code class="literal">PIPE_BUF</code> on an undefined file structure yields only the amount of data specified by <code class="literal">PIPE_BUF</code>. The receiving process does not wait to see whether the sending process is refilling the buffer. The pipe may be less than the value of <code class="literal">PIPE_BUF</code>.</p>
+<p>For example, the following <tt class="command">assign</tt> commands specify that the file structure of the named pipe (unit 13, file name <code class="filename">pipe</code>) for the sending process should be <code class="literal">undefined</code> <tt class="command">(-s u)</tt>. The named pipe (unit 15, file name <code class="filename">pipe</code>) is type <code class="literal">unblocked</code> <tt class="command">(-s unblocked)</tt> for the read process.</p>
+<pre class="programlisting" style="background-color:#e0e0e0">assign -s u -a pipe u:13
+assign -s unblocked -a pipe u:15   </pre>
+</li>
+<li><p>A read from a pipe that is closed by the sender causes an end-of-file (EOF). To detect EOF on a named pipe, the pipe must be opened as read-only by the receiving process. The remainder of this chapter presents more information about detecting EOF.</p></li>
+</ul></div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="section.48.NpA5UONG"></a><a name="title.112.qGXuDFyA"></a>16.1 Piped I/O Example without End-of-file Detection</h2></div></div></div>
+<p>In this example, two Fortran programs communicate without end-of-file (EOF) detection. Program <code class="literal">writerd</code> generates an array, which contains the elements 1 to 3, and writes the array to named pipe <code class="filename">pipe1</code>. Program <code class="literal">readwt</code> reads the three elements from named pipe <code class="filename">pipe1</code>, prints out the values, adds <code class="literal">1</code> to each value, and writes the new elements to named pipe <code class="filename">pipe2</code>. Program <code class="literal">writerd</code> reads the new values from named pipe <code class="filename">pipe2</code> and prints them. The <code class="literal">-a</code> option of the <tt><tt class="command">assign()</tt></tt> command allows the two processes to access the same file with different <tt class="command">assign</tt> characteristics.</p>
+<div class="example">
+<a name="z846265326jeanw"></a><a name="title.113.7UGomIlX"></a><p class="title"><b>Example 8. No EOF Detection: program <code class="literal">writerd</code></b></p>
+<pre class="programlisting" style="background-color:#e0e0e0">        program writerd
+        parameter(n=3)
+        dimension ia(n)
+        do 10 i=1,n
+           ia(i)=i
+10      continue
+        write (10) ia
+        read (11) ia
+        do 20 i=1,n
+           print*,'ia(',i,') is ',ia(i),' in writerd'
+20      continue
+        end</pre>
+</div>
+<div class="example">
+<a name="z846265434jeanw"></a><a name="title.114.14rY1ZJ6"></a><p class="title"><b>Example 9. No EOF Detection: program <code class="literal">readwt</code></b></p>
+<pre class="programlisting" style="background-color:#e0e0e0">        program readwt
+        parameter(n=3)
+        dimension ia(n)
+        read (15) ia
+        do 10 i=1,n
+           print*,'ia(',i,') is ',ia(i),' in readwt'
+           ia(i)=ia(i)+1
+10      continue
+        write (16) ia
+        end</pre>
+</div>
+<p>The following command sequence executes the programs:</p>
+<pre class="literallayout" style="background-color:#e0e0e0">ftn -o readwt readwt.f
+ftn -o writerd writerd.f
+/bin/mknod pipe1 p
+/bin/mknod pipe2 p
+assign -s u -a pipe1 u:10
+assign -s unblocked -a pipe2 u:11
+assign -s unblocked -a pipe1 u:15
+assign -s u -a pipe2 u:16
+readwt &amp;
+writerd</pre>
+<p>The output of the two programs is:</p>
+<pre class="literallayout" style="background-color:#e0e0e0">ia(1) is 1 in readwt
+ia(2) is 2 in readwt
+ia(3) is 3 in readwt
+ia(1) is 2 in writerd
+ia(2) is 3 in writerd
+ia(3) is 4 in writerd</pre>
+</div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="section.49.adQqYxEH"></a><a name="title.115.xJUi2EXF"></a>16.2 Detecting End-of-file on a Named Pipe</h2></div></div></div>
+<p>The following conditions must be met to detect end-of-file on a read from a named pipe within a Fortran program:</p>
+<div class="itemizedlist"><ul type="disc">
+<li><p>The program that sends data must open the pipe in a specific way, and the program that receives the data must open the pipe as read-only.</p></li>
+<li><p>The program that sends or writes the data must open the named pipe as read-and-write or write-only. Read-and-write is the default because the <code class="filename">/bin/mknod</code> command creates a named pipe with read-and-write permission.</p></li>
+<li><p>The program that receives or reads the data must open the pipe as read-only. A read from a named pipe that is opened as read-and-write waits indefinitely for the data being sent.</p></li>
+</ul></div>
+</div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="section.50.yjghwu4A"></a><a name="title.116.vTCeP5SN"></a>16.3 Piped I/O Example with End-of-file Detection</h2></div></div></div>
+<p>This example uses named pipes for communication between two Fortran programs with end-of-file detection. The programs in this example are similar to the programs used in the preceding section. This example shows that program <code class="literal">readwt</code> can detect the EOF.</p>
+<p>Program <code class="literal">writerd</code> generates array <code class="literal">ia</code> and writes the data to the named pipe <code class="filename">pipe1</code>. Program <code class="literal">readwt</code> reads the data from the named pipe <code class="filename">pipe1</code>, prints the values, adds one to each value, and writes the new elements to named pipe <code class="filename">pipe2</code>. Program <code class="literal">writerd</code> reads the new values from <code class="filename">pipe2</code> and prints them. Finally, program <code class="literal">writerd</code> closes <code class="filename">pipe1</code> and causes program <code class="literal">readwt</code> to detect the EOF.</p>
+<p>This command sequence executes these programs:</p>
+<pre class="programlisting" style="background-color:#e0e0e0">ftn -o readwt readwt.f
+ftn -o writerd writerd.f
+assign -s u -a pipe1 u:10
+assign -s unblocked -a pipe2 u:11
+assign -s unblocked -a pipe1 u:15
+assign -s u -a pipe2 u:16
+/bin/mknod pipe1 p
+/bin/mknod pipe2 p
+readwt &amp;
+writerd  </pre>
+<div class="example">
+<a name="z846265728jeanw"></a><a name="title.117.li2tDsA8"></a><p class="title"><b>Example 10. EOF Detection: program <code class="literal">writerd</code></b></p>
+<pre class="programlisting" style="background-color:#e0e0e0">      program writerd
+      parameter(n=3)
+      dimension ia(n)
+      do 10 i=1,n
+        ia(i)=i
+10    continue
+      write (10) ia
+      read (11) ia
+      do 20 i=1,n
+        print*,'ia(',i,') is',ia(i),' in writerd'
+20    continue 
+      close (10)
+      end</pre>
+</div>
+<div class="example">
+<a name="z846265755jeanw"></a><a name="title.118.Qzi5iNMN"></a><p class="title"><b>Example 11. EOF Detection: program <code class="literal">readwt</code></b></p>
+<pre class="programlisting" style="background-color:#e0e0e0">      program readwt
+      parameter(n=3)
+      dimension ia(n)
+C     open the pipe as read-only
+      open(15,form='unformatted', action='read')
+      read (15,end = 101) ia
+      do 10 i=1,n
+        print*,'ia(',i,') is ',ia(i),' in readwt'
+        ia(i)=ia(i)+1
+ 10   continue
+      write (16) ia
+      read (15,end = 101) ia
+      goto 102
+101   print *,'End of file detected'
+102   continue
+      end</pre>
+</div>
+<p>This is the output of the two programs:</p>
+<pre class="literallayout" style="background-color:#e0e0e0">ia(1) is 1 in readwt
+ia(2) is 2 in readwt
+ia(3) is 3 in readwt
+ia(1) is 2 in writerd
+ia(2) is 3 in writerd
+ia(3) is 4 in writerd
+End of file detected</pre>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="30%" align="left">
+<a accesskey="p" style="font-size:80%" href="zbllsmg.html">Previous</a> </td>
+<td width="40%" align="center">
+<a accesskey="h" href="index.html">Title Page</a> | <a accesskey="t" href="S-3901-74-toc.html#toc">Table of Contents</a>
+</td>
+<td width="30%" align="right"> <a accesskey="n" style="font-size:80%" href="glossary.2.30eY6fDQ.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="30%" align="left" valign="top">
+<span style="font-size:80%">Creating a <code class="literal">user</code> Layer  [15]</span> </td>
+<td width="40%" align="center" valign="top"><span style="font-size:80%"> </span></td>
+<td width="30%" align="right" valign="top"> <span style="font-size:80%">Glossary</span>
+</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

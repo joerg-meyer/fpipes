@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>C interop to popen - comp.lang.fortran</title>
+    <meta name="description" content="I am a bit confused by the following example, which tries to call the unix (linux) popen(), fgets(), pclose().  It works as I would expect when comp... 379831" />
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/main.js"></script>
+    <script type="text/javascript" src="/jq/appear/appear.js"></script>
+    <link rel="Stylesheet" href="/css/main_compgroups.css" />
+    <script type="text/javascript" src="/jq/colorbox/colorbox1.3.19.js"></script>
+      <link rel="Stylesheet" href="/jq/colorbox/colorbox.css" /> 
+     
+  <script type="text/javascript" src="/js/article.js"></script>
+ <link rel="canonical" href="/comp.lang.fortran/c-interop-to-popen/379831" />
+ 
+</head>
+<body class="MainBody">
+         
+    <table class="MainTable" cellspacing="0"   >
+        <tr class="TopHeader">
+            <td class="MainLeft"></td>
+            <td class="Borders" >
+                    <table style="width: 100%; " cellpadding="0" cellspacing="0">
+                       
+                        <tr>
+                    <td >  
+</td>
+       <td align="right"><img src="/img/computer.png" />&nbsp;</td>
+                            <td class="MenuLinks">      
+                            <a href="/">COMPGROUPS.NET</a> | 
+                            <a href="/site~search"><img src="/img/icn/search.png" />Search</a> | 
+                          <a href="/article~post"><img src="/img/icn/add.png" />Post Question</a> | 
+                            <a href="/groups/"><img src="/img/icn/group.png" />Groups</a> | 
+                            <a href="/article~stream"><img src="/img/icn/lightning.png" />Stream</a> | 
+                            <a href="/site~about"><img src="/img/icn/i.png" />About</a> | 
+                           
+                            
+<b>
+   <a onclick="OpenModal('/fr~signin', 400, 350 )">
+        <img src="/img/icn/key.png" />Register</a></b>
+ 
+                       
+                    </td>
+                   
+                       </tr>
+                    </table>
+            </td><td class="MainRight"> 
+                     </td>       
+        </tr>         
+        <tr>
+            <td valign="top" class="MainLeft"> 
+                
+                 
+            </td>
+            <td class="MainContent BorderSides" style="width:900px"  >
+                
+                <table border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td>  
+                            
+<h3>C interop to popen</h3> <ul class="Socials"><li><g:plusone size="medium"></g:plusone>
+                          <script type="text/javascript">                              (function () {
+                                  var po = document.createElement('script');
+                                  po.type = 'text/javascript'; po.async = true; po.src = 'https://apis.google.com/js/plusone.js';
+                                  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                              })(); </script></li><li><a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+<script>    !function (d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (!d.getElementById(id)) { js = d.createElement(s); js.id = id; js.src = "//platform.twitter.com/widgets.js"; fjs.parentNode.insertBefore(js, fjs); } } (document, "script", "twitter-wjs");</script>
+</li><li><div class="fb-like" data-href="http://compgroups.net/comp.lang.fortran/c-interop-to-popen/379831" data-send="false" data-layout="button_count" data-width="50" data-show-faces="true">
+                              </div>
+                              <div id="fb-root">
+                              </div>
+                              <script>
+                                (function (d, s, id) {
+                                      var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id))
+                                      { return; } js = d.createElement(s); js.id = id; js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
+                                      fjs.parentNode.insertBefore(js, fjs);
+                                  } (document, 'script', 'facebook-jssdk'));   </script></li><li> <span class="Button Color2" onclick="OpenModal('/fr~SubscribeArticle?i=379831', 400, 300)">Follow</span></li></ul>
+     <br />
+     <br />
+    
+           
+<table >
+    <tr>
+        <td style="width:700px" valign="top">
+ 
+ 
+<table width="100%" class="PostArticle" cellspacing="0" cellpadding="5">
+    <tr>
+    
+        <td align="left" valign="top" colspan="9">
+            <pre class="ForumPostContentText">I am a bit confused by the following example, which tries to call the
+unix (linux) popen(), fgets(), pclose().  It works as I would expect
+when compiled by g95, but the gfortran compiled code hangs around the first 
+fgets(), 
+
+#0  0xb7fcd424 in __kernel_vsyscall ()
+#1  0xb7f091e3 in read () from /lib/i686/cmov/libc.so.6
+#2  0xb7ea2fde in _IO_file_underflow () from /lib/i686/cmov/libc.so.6
+#3  0xb7ea4d3b in _IO_default_uflow () from /lib/i686/cmov/libc.so.6
+#4  0xb7ea62f2 in __uflow () from /lib/i686/cmov/libc.so.6
+#5  0xb7e98c96 in _IO_getline_info () from /lib/i686/cmov/libc.so.6
+#6  0xb7e98be1 in _IO_getline () from /lib/i686/cmov/libc.so.6
+#7  0xb7e97aea in fgets () from /lib/i686/cmov/libc.so.6
+
+and sunf95 gives 
+INTERNAL COMPILER ERROR around c_associated(fgets(lin,
+clen, fp%handle).  
+
+Unfortunately g95 seems fairly forgiving when I do stupid things
+interoperating with C.
+
+!
+! Fortran interface to popen
+!
+module fpipes
+  use, intrinsic :: ISO_C_BINDING
+  type, public :: streampointer
+    type (c_ptr) :: handle = c_null_ptr
+  end type streampointer
+! popen  
+  interface
+    function popen(path, mode) bind(C, name=&#39;popen&#39;)
+      use, intrinsic :: ISO_C_BINDING
+      character(kind=c_char), dimension(*) :: path, mode
+      type (c_ptr) :: popen
+    end function
+  end interface
+! fgets  
+  interface
+    function fgets(buf, siz, handle) bind(C, name=&#39;fgets&#39;)
+      use, intrinsic :: ISO_C_BINDING
+      type (c_ptr) :: fgets
+      character(kind=c_char), dimension(*) :: buf
+      integer(kind=c_int), value :: siz
+      type (c_ptr), value :: handle
+    end function
+  end interface
+! pclose  
+  interface
+    function pclose(handle) bind(C, name=&#39;pclose&#39;)
+    use, intrinsic :: ISO_C_BINDING
+    integer(c_int) :: pclose
+    type (c_ptr), value :: handle
+    end function
+  end interface
+end module fpipes
+!
+! Main program 
+!
+program test
+  use fpipes 
+  integer, parameter :: BUFLEN=50000
+  character(len=BUFLEN) :: lin
+  character (len=3) :: mode
+  integer (kind=c_int) :: clen
+  integer :: eos, i
+  type(streampointer) :: fp
+
+  call get_command(lin)
+  if (lin == &#39; &#39; .or. lin == &#39;-h&#39; .or. lin == &#39;--help&#39;) then
+    write(*,&#39;(a)&#39;) &#39;Usage: run-process &lt;command&gt;&#39;
+    stop
+  end if 
+  clen=BUFLEN-1
+  mode=&#39;r&#39;
+  fp%handle = popen(trim(lin) // C_NULL_CHAR, trim(mode) // C_NULL_CHAR)
+  if (.not.c_associated(fp%handle)) then
+    write(*,*) &#39;ERROR: Could not open pipe!&#39;
+    stop
+  else
+    write(*,*) &#39;Opened pipe successfully&#39;
+  end if
+  do while (c_associated(fgets(lin, clen, fp%handle)))
+    eos=2
+    do i=1, BUFLEN
+      if (lin(i:i) == C_NULL_CHAR) then
+        eos=i-2
+        exit
+      end if
+    end do
+    write(*,*) eos, &#39;: &quot;&#39;, trim(lin(1:eos)), &#39;&quot;&#39;
+  end do
+  ios = pclose(fp%handle)
+end program test
+
+
+-- 
+| David Duffy (MBBS PhD)                                         ,-_|\
+| email: davidD@qimr.edu.au  ph: INT+61+7+3362-0217 fax: -0101  /     *
+| Epidemiology Unit, Queensland Institute of Medical Research   \_,-._/
+| 300 Herston Rd, Brisbane, Queensland 4029, Australia  GPG 4D0B994A v 
+</pre>
+        </td>
+    </tr>
+    <tr class="ListItem"  >
+        <td style="width:95px" >
+              <table style="text-align: center;  width:90px" class="Voting" voteSum="0">
+    <tr>
+        <td>
+            <img src="/img/icn/plus32.png"  height="20px"  style="cursor: pointer" title="Vote Up!" onclick="OnVoteArticle($(this).closest('table'),'&lt;hf55gs$cdd$1@air.soe.uq.edu.au&gt;', true);" />
+        </td>
+        <td style="color: Green; font-weight: bold; font-size: 15px" title="0 Total Votes" >
+           0
+        </td>
+        <td>
+            <img src="/img/icn/minus32.png"  height="20px"  style="cursor: pointer" title="Vote Down!" onclick="OnVoteArticle($(this).closest('table'),'&lt;hf55gs$cdd$1@air.soe.uq.edu.au&gt;', false);" />
+        </td>
+    </tr>
+</table>
+
+        </td>
+            <td>                      <img title="Report As Spam" src="/img/icn/spam.png" onclick="ReportSpamArticle(379831)" class="Clickable" />  
+            </td> 
+        <td >
+         
+                    <a class="Button Color1" href="#replyForm" >Reply</a>
+        </td>
+        <td style="width: 150px;">
+<span><img src="/img/icn/user.png" /><b>David</b></span>
+        </td>
+      <td>12/2/2009 7:38:04 AM </td>
+            <td>   
+                <a onclick="OpenModal('/ifr/register', 350, 200)" title="Header" ><img src="/img/icn/header.gif" /></a>
+              
+        </td>  
+    </tr>
+</table>          <br /> 
+<table width="100%" class="PostArticle" cellspacing="0" cellpadding="5">
+    <tr>
+        
+        <td align="left" valign="top" colspan="9">
+            <pre class="ForumPostContentText">On 12/02/2009 08:38 AM, David Duffy wrote:
+&gt; I am a bit confused by the following example, which tries to call the
+&gt; unix (linux) popen(), fgets(), pclose().  It works as I would expect
+&gt; when compiled by g95, but the gfortran compiled code hangs around the first 
+&gt; fgets()
+
+Well, the reason why you are confused is because you looked at the wrong
+spot.
+
+&gt;   call get_command(lin)
+&gt;   if (lin == &#39; &#39; .or. lin == &#39;-h&#39; .or. lin == &#39;--help&#39;) then
+[...]
+&gt;   fp%handle = popen(trim(lin) // C_NULL_CHAR, [...]
+
+You assume that g95 returns the same result as gfortran for
+get_command(). If I call &quot;./a.out echo&quot; then g95&#39;s get_command returns
+lin == &quot;echo&quot; while gfortran, NAG, ifort, and open95 return &quot;./a.out echo&quot;.
+
+Thus you are popening your program all the time when compiling with
+gfortran ...
+
+Tobias
+</pre>
+        </td>
+    </tr>
+    <tr class="ListItem">
+     
+              <td style="width:95px">
+                  <table style="text-align: center;  width:90px" class="Voting" voteSum="0">
+    <tr>
+        <td>
+            <img src="/img/icn/plus32.png"  height="20px"  style="cursor: pointer" title="Vote Up!" onclick="OnVoteArticleReply($(this).closest('table'),'&lt;4B1625D4.5050407@net-b.de&gt;', true);" />
+        </td>
+        <td style="color: Green; font-weight: bold; font-size: 15px" title="0 Total Votes" >
+           0
+        </td>
+        <td>
+            <img src="/img/icn/minus32.png"  height="20px"  style="cursor: pointer" title="Vote Down!" onclick="OnVoteArticleReply($(this).closest('table'),'&lt;4B1625D4.5050407@net-b.de&gt;', false);" />
+        </td>
+    </tr>
+</table>
+
+            </td>
+                <td>              <img title="Report As Spam" src="/img/icn/spam.png" onclick="ReportSpamReply('%3c4B1625D4.5050407%40net-b.de%3e')" class="Clickable" />
+        </td>
+        <td>
+          
+                 <a class="Button Color1" href="#replyForm">Reply</a>
+        </td>
+        <td style="width: 150px;">
+<span><img src="/img/icn/user.png" /><b>Tobias</b></span>
+     
+        </td>
+        <td>
+            12/2/2009 8:31:16 AM  
+        </td> 
+            <td>
+                <a onclick="OpenModal('/ifr/register', 350, 200)" title="Header" ><img src="/img/icn/header.gif" /></a>
+              
+        </td>
+    </tr>
+</table>
+                      <br />  <table width="100%" class="PostReply"><tr><td> <div id="azk25862"></div>  </td><td align="right">
+                           <div id="azk26003"></div>   </td> </tr></table>  
+          <br /> 
+<table width="100%" class="PostArticle" cellspacing="0" cellpadding="5">
+    <tr>
+        
+        <td align="left" valign="top" colspan="9">
+            <pre class="ForumPostContentText">Hello,
+
+David Duffy schrieb:
+&gt; I am a bit confused by the following example, which tries to call the
+&gt; unix (linux) popen(), fgets(), pclose().  It works as I would expect
+&gt; when compiled by g95, but the gfortran compiled code hangs around the first 
+&gt; fgets(), 
+&gt; 
+&gt; #0  0xb7fcd424 in __kernel_vsyscall ()
+&gt; #1  0xb7f091e3 in read () from /lib/i686/cmov/libc.so.6
+&gt; #2  0xb7ea2fde in _IO_file_underflow () from /lib/i686/cmov/libc.so.6
+&gt; #3  0xb7ea4d3b in _IO_default_uflow () from /lib/i686/cmov/libc.so.6
+&gt; #4  0xb7ea62f2 in __uflow () from /lib/i686/cmov/libc.so.6
+&gt; #5  0xb7e98c96 in _IO_getline_info () from /lib/i686/cmov/libc.so.6
+&gt; #6  0xb7e98be1 in _IO_getline () from /lib/i686/cmov/libc.so.6
+&gt; #7  0xb7e97aea in fgets () from /lib/i686/cmov/libc.so.6
+&gt; 
+&gt; and sunf95 gives 
+&gt; INTERNAL COMPILER ERROR around c_associated(fgets(lin,
+&gt; clen, fp%handle).  
+
+I can reproduce this for SS 12U1.
+
+&gt; 
+&gt; Unfortunately g95 seems fairly forgiving when I do stupid things
+&gt; interoperating with C.
+
+I think there is a difference in how different compilers execute the
+subroutine get_command(). In particular, g95 appears to not include
+the name of the executed command itself in the returned string; from
+the description in the standard I consider this to be a bug in g95.
+
+Replacing the call by
+
+call get_command_argument(1,lin)
+
+which I think is nearer to the semantics you want anyway,
+things seem to be fine for ifort, nagfor, gfortran.
+
+Regards
+Reinhold
+&gt; 
+
+</pre>
+        </td>
+    </tr>
+    <tr class="ListItem">
+     
+              <td style="width:95px">
+                  <table style="text-align: center;  width:90px" class="Voting" voteSum="0">
+    <tr>
+        <td>
+            <img src="/img/icn/plus32.png"  height="20px"  style="cursor: pointer" title="Vote Up!" onclick="OnVoteArticleReply($(this).closest('table'),'&lt;hf58vm$8ld$1@news.lrz-muenchen.de&gt;', true);" />
+        </td>
+        <td style="color: Green; font-weight: bold; font-size: 15px" title="0 Total Votes" >
+           0
+        </td>
+        <td>
+            <img src="/img/icn/minus32.png"  height="20px"  style="cursor: pointer" title="Vote Down!" onclick="OnVoteArticleReply($(this).closest('table'),'&lt;hf58vm$8ld$1@news.lrz-muenchen.de&gt;', false);" />
+        </td>
+    </tr>
+</table>
+
+            </td>
+                <td>              <img title="Report As Spam" src="/img/icn/spam.png" onclick="ReportSpamReply('%3chf58vm%248ld%241%40news.lrz-muenchen.de%3e')" class="Clickable" />
+        </td>
+        <td>
+          
+                 <a class="Button Color1" href="#replyForm">Reply</a>
+        </td>
+        <td style="width: 150px;">
+<span><img src="/img/icn/user.png" /><b>Reinhold</b></span>
+     
+        </td>
+        <td>
+            12/2/2009 8:37:10 AM  
+        </td> 
+            <td>
+                <a onclick="OpenModal('/ifr/register', 350, 200)" title="Header" ><img src="/img/icn/header.gif" /></a>
+              
+        </td>
+    </tr>
+</table>
+          <br /> 
+<table width="100%" class="PostArticle" cellspacing="0" cellpadding="5">
+    <tr>
+        
+        <td align="left" valign="top" colspan="9">
+            <pre class="ForumPostContentText">David Duffy &lt;davidD@orpheus.qimr.edu.au&gt; wrote:
+&gt; I am a bit confused by the following example, which tries to call the
+&gt; unix (linux) popen(), fgets(), pclose().  It works as I would expect
+&gt; when compiled by g95, but the gfortran compiled code hangs around the first 
+&gt; fgets(), 
+ 
+&gt; #0  0xb7fcd424 in __kernel_vsyscall ()
+&gt; #1  0xb7f091e3 in read () from /lib/i686/cmov/libc.so.6
+&gt; #2  0xb7ea2fde in _IO_file_underflow () from /lib/i686/cmov/libc.so.6
+&gt; #3  0xb7ea4d3b in _IO_default_uflow () from /lib/i686/cmov/libc.so.6
+&gt; #4  0xb7ea62f2 in __uflow () from /lib/i686/cmov/libc.so.6
+&gt; #5  0xb7e98c96 in _IO_getline_info () from /lib/i686/cmov/libc.so.6
+&gt; #6  0xb7e98be1 in _IO_getline () from /lib/i686/cmov/libc.so.6
+&gt; #7  0xb7e97aea in fgets () from /lib/i686/cmov/libc.so.6
+
+(snip of actual code)
+
+It looks fine to me.
+
+Some years ago (about 1990) I was working with HP/UX Fortran,
+which has its own C interoperability.  Among others, there is
+a way to associate a unix file descriptor with a Fortran I/O
+unit.  I wrote a subroutine that would do popen, use a unix/C
+macro to extract the file descriptor, and then open a Fortran
+I/O unit.  I could then do Fortran I/O (specifically O) to the
+pipe.  I was a little unsure what would happen on close, as
+Fortran would likely fclose() the file instead of pclose(), but
+it seemed to work.  (The specific use was piping to lpr.)
+
+About all I can think of is to write wrappers for the C functions,
+and print out the arguments.  Probably with %P for the pointers.
+
+I wonder, though, if some important part of the C I/O library
+is not being initialized.
+
+-- glen
+</pre>
+        </td>
+    </tr>
+    <tr class="ListItem">
+     
+              <td style="width:95px">
+                  <table style="text-align: center;  width:90px" class="Voting" voteSum="0">
+    <tr>
+        <td>
+            <img src="/img/icn/plus32.png"  height="20px"  style="cursor: pointer" title="Vote Up!" onclick="OnVoteArticleReply($(this).closest('table'),'&lt;hf5a10$7sb$1@naig.caltech.edu&gt;', true);" />
+        </td>
+        <td style="color: Green; font-weight: bold; font-size: 15px" title="0 Total Votes" >
+           0
+        </td>
+        <td>
+            <img src="/img/icn/minus32.png"  height="20px"  style="cursor: pointer" title="Vote Down!" onclick="OnVoteArticleReply($(this).closest('table'),'&lt;hf5a10$7sb$1@naig.caltech.edu&gt;', false);" />
+        </td>
+    </tr>
+</table>
+
+            </td>
+                <td>              <img title="Report As Spam" src="/img/icn/spam.png" onclick="ReportSpamReply('%3chf5a10%247sb%241%40naig.caltech.edu%3e')" class="Clickable" />
+        </td>
+        <td>
+          
+                 <a class="Button Color1" href="#replyForm">Reply</a>
+        </td>
+        <td style="width: 150px;">
+<span><img src="/img/icn/user.png" /><b>glen</b></span>
+     
+        </td>
+        <td>
+            12/2/2009 8:54:56 AM  
+        </td> 
+            <td>
+                <a onclick="OpenModal('/ifr/register', 350, 200)" title="Header" ><img src="/img/icn/header.gif" /></a>
+              
+        </td>
+    </tr>
+</table>
+          <br /> 
+<table width="100%" class="PostArticle" cellspacing="0" cellpadding="5">
+    <tr>
+        
+        <td align="left" valign="top" colspan="9">
+            <pre class="ForumPostContentText">Tobias Burnus &lt;burnus@net-b.de&gt; wrote:
+&gt; On 12/02/2009 08:38 AM, David Duffy wrote:
+&gt; You assume that g95 returns the same result as gfortran for
+&gt; get_command(). If I call &quot;./a.out echo&quot; then g95&#39;s get_command returns
+&gt; lin == &quot;echo&quot; while gfortran, NAG, ifort, and open95 return &quot;./a.out echo&quot;.
+
+&gt; Thus you are popening your program all the time when compiling with
+&gt; gfortran ...
+
+Indeed this was the problem, and explains the even wilder behaviour
+when I used popen(commandline,&quot;w&quot;) ;)
+
+Cheers, David Duffy.
+
+-- 
+| David Duffy (MBBS PhD)                                         ,-_|\
+| email: davidD@qimr.edu.au  ph: INT+61+7+3362-0217 fax: -0101  /     *
+| Epidemiology Unit, Queensland Institute of Medical Research   \_,-._/
+| 300 Herston Rd, Brisbane, Queensland 4029, Australia  GPG 4D0B994A v 
+</pre>
+        </td>
+    </tr>
+    <tr class="ListItem">
+     
+              <td style="width:95px">
+                  <table style="text-align: center;  width:90px" class="Voting" voteSum="0">
+    <tr>
+        <td>
+            <img src="/img/icn/plus32.png"  height="20px"  style="cursor: pointer" title="Vote Up!" onclick="OnVoteArticleReply($(this).closest('table'),'&lt;hf5b1r$ra4$1@air.soe.uq.edu.au&gt;', true);" />
+        </td>
+        <td style="color: Green; font-weight: bold; font-size: 15px" title="0 Total Votes" >
+           0
+        </td>
+        <td>
+            <img src="/img/icn/minus32.png"  height="20px"  style="cursor: pointer" title="Vote Down!" onclick="OnVoteArticleReply($(this).closest('table'),'&lt;hf5b1r$ra4$1@air.soe.uq.edu.au&gt;', false);" />
+        </td>
+    </tr>
+</table>
+
+            </td>
+                <td>              <img title="Report As Spam" src="/img/icn/spam.png" onclick="ReportSpamReply('%3chf5b1r%24ra4%241%40air.soe.uq.edu.au%3e')" class="Clickable" />
+        </td>
+        <td>
+          
+                 <a class="Button Color1" href="#replyForm">Reply</a>
+        </td>
+        <td style="width: 150px;">
+<span><img src="/img/icn/user.png" /><b>David</b></span>
+     
+        </td>
+        <td>
+            12/2/2009 9:12:27 AM  
+        </td> 
+            <td>
+                <a onclick="OpenModal('/ifr/register', 350, 200)" title="Header" ><img src="/img/icn/header.gif" /></a>
+              
+        </td>
+    </tr>
+</table>
+          <br /> 
+<table width="100%" class="PostArticle" cellspacing="0" cellpadding="5">
+    <tr>
+        
+        <td align="left" valign="top" colspan="9">
+            <pre class="ForumPostContentText">Tobias Burnus &lt;burnus@net-b.de&gt; wrote:
+&gt; On 12/02/2009 08:38 AM, David Duffy wrote:
+&gt;&gt; I am a bit confused by the following example, which tries to call the
+&gt;&gt; unix (linux) popen(), fgets(), pclose().  It works as I would expect
+&gt;&gt; when compiled by g95, but the gfortran compiled code hangs around the first 
+&gt;&gt; fgets()
+ 
+&gt; Well, the reason why you are confused is because you looked at the wrong
+&gt; spot.
+ 
+&gt;&gt;   call get_command(lin)
+&gt;&gt;   if (lin == &#39; &#39; .or. lin == &#39;-h&#39; .or. lin == &#39;--help&#39;) then
+&gt; [...]
+&gt;&gt;   fp%handle = popen(trim(lin) // C_NULL_CHAR, [...]
+ 
+&gt; You assume that g95 returns the same result as gfortran for
+&gt; get_command(). If I call &quot;./a.out echo&quot; then g95&#39;s get_command returns
+&gt; lin == &quot;echo&quot; while gfortran, NAG, ifort, and open95 return &quot;./a.out echo&quot;.
+ 
+&gt; Thus you are popening your program all the time when compiling with
+&gt; gfortran ...
+
+In that case, it should recursively popen() until it runs
+out of something and popen() fails.  That would seem to indicate
+that the test for success on popen() isn&#39;t working.
+
+I presume the c_associated() test is right.  In C, you just do:
+
+while(fgets(...)) { /* process the line */ }
+
+-- glen
+
+-- glen
+</pre>
+        </td>
+    </tr>
+    <tr class="ListItem">
+     
+              <td style="width:95px">
+                  <table style="text-align: center;  width:90px" class="Voting" voteSum="0">
+    <tr>
+        <td>
+            <img src="/img/icn/plus32.png"  height="20px"  style="cursor: pointer" title="Vote Up!" onclick="OnVoteArticleReply($(this).closest('table'),'&lt;hf5be7$7sb$3@naig.caltech.edu&gt;', true);" />
+        </td>
+        <td style="color: Green; font-weight: bold; font-size: 15px" title="0 Total Votes" >
+           0
+        </td>
+        <td>
+            <img src="/img/icn/minus32.png"  height="20px"  style="cursor: pointer" title="Vote Down!" onclick="OnVoteArticleReply($(this).closest('table'),'&lt;hf5be7$7sb$3@naig.caltech.edu&gt;', false);" />
+        </td>
+    </tr>
+</table>
+
+            </td>
+                <td>              <img title="Report As Spam" src="/img/icn/spam.png" onclick="ReportSpamReply('%3chf5be7%247sb%243%40naig.caltech.edu%3e')" class="Clickable" />
+        </td>
+        <td>
+          
+                 <a class="Button Color1" href="#replyForm">Reply</a>
+        </td>
+        <td style="width: 150px;">
+<span><img src="/img/icn/user.png" /><b>glen</b></span>
+     
+        </td>
+        <td>
+            12/2/2009 9:19:03 AM  
+        </td> 
+            <td>
+                <a onclick="OpenModal('/ifr/register', 350, 200)" title="Header" ><img src="/img/icn/header.gif" /></a>
+              
+        </td>
+    </tr>
+</table>
+          <br /> 
+<table width="100%" class="PostArticle" cellspacing="0" cellpadding="5">
+    <tr>
+        
+        <td align="left" valign="top" colspan="9">
+            <pre class="ForumPostContentText">On Dec 2, 8:38=A0am, David Duffy &lt;dav...@orpheus.qimr.edu.au&gt; wrote:
+
+&gt;and sunf95 gives
+&gt;INTERNAL COMPILER ERROR around c_associated(fgets(lin,
+&gt;clen, fp%handle).
+
+
+This should be reported to Sun as it&#39;s a clear compiler error.
+
+Regards,
+
+Mike Metcalf
+</pre>
+        </td>
+    </tr>
+    <tr class="ListItem">
+     
+              <td style="width:95px">
+                  <table style="text-align: center;  width:90px" class="Voting" voteSum="0">
+    <tr>
+        <td>
+            <img src="/img/icn/plus32.png"  height="20px"  style="cursor: pointer" title="Vote Up!" onclick="OnVoteArticleReply($(this).closest('table'),'&lt;951da048-4105-43fb-9abc-aaa4e9fe3930@e27g2000yqd.googlegroups.com&gt;', true);" />
+        </td>
+        <td style="color: Green; font-weight: bold; font-size: 15px" title="0 Total Votes" >
+           0
+        </td>
+        <td>
+            <img src="/img/icn/minus32.png"  height="20px"  style="cursor: pointer" title="Vote Down!" onclick="OnVoteArticleReply($(this).closest('table'),'&lt;951da048-4105-43fb-9abc-aaa4e9fe3930@e27g2000yqd.googlegroups.com&gt;', false);" />
+        </td>
+    </tr>
+</table>
+
+            </td>
+                <td>              <img title="Report As Spam" src="/img/icn/spam.png" onclick="ReportSpamReply('%3c951da048-4105-43fb-9abc-aaa4e9fe3930%40e27g2000yqd.googlegroups.com%3e')" class="Clickable" />
+        </td>
+        <td>
+          
+                 <a class="Button Color1" href="#replyForm">Reply</a>
+        </td>
+        <td style="width: 150px;">
+<span><img src="/img/icn/user.png" /><b>m_b_metcalf</b></span>
+     
+        </td>
+        <td>
+            12/2/2009 9:31:41 AM  
+        </td> 
+            <td>
+                <a onclick="OpenModal('/ifr/register', 350, 200)" title="Header" ><img src="/img/icn/header.gif" /></a>
+              
+        </td>
+    </tr>
+</table>
+          <br /> 
+<table width="100%" class="PostArticle" cellspacing="0" cellpadding="5">
+    <tr>
+        
+        <td align="left" valign="top" colspan="9">
+            <pre class="ForumPostContentText">On Dec 2, 1:31 am, m_b_metcalf &lt;michaelmetc...@compuserve.com&gt; wrote:
+&gt; On Dec 2, 8:38 am, David Duffy &lt;dav...@orpheus.qimr.edu.au&gt; wrote:
+&gt;
+&gt; &gt;and sunf95 gives
+&gt; &gt;INTERNAL COMPILER ERROR around c_associated(fgets(lin,
+&gt; &gt;clen, fp%handle).
+&gt;
+&gt; This should be reported to Sun as it&#39;s a clear compiler error.
+&gt;
+&gt; Regards,
+&gt;
+&gt; Mike Metcalf
+
+I filed a bug report.  It is CR 6906888.
+
+Bob Corbett
+</pre>
+        </td>
+    </tr>
+    <tr class="ListItem">
+     
+              <td style="width:95px">
+                  <table style="text-align: center;  width:90px" class="Voting" voteSum="0">
+    <tr>
+        <td>
+            <img src="/img/icn/plus32.png"  height="20px"  style="cursor: pointer" title="Vote Up!" onclick="OnVoteArticleReply($(this).closest('table'),'&lt;25123ee4-bfe1-447c-bef1-90909fc5893e@d9g2000prh.googlegroups.com&gt;', true);" />
+        </td>
+        <td style="color: Green; font-weight: bold; font-size: 15px" title="0 Total Votes" >
+           0
+        </td>
+        <td>
+            <img src="/img/icn/minus32.png"  height="20px"  style="cursor: pointer" title="Vote Down!" onclick="OnVoteArticleReply($(this).closest('table'),'&lt;25123ee4-bfe1-447c-bef1-90909fc5893e@d9g2000prh.googlegroups.com&gt;', false);" />
+        </td>
+    </tr>
+</table>
+
+            </td>
+                <td>              <img title="Report As Spam" src="/img/icn/spam.png" onclick="ReportSpamReply('%3c25123ee4-bfe1-447c-bef1-90909fc5893e%40d9g2000prh.googlegroups.com%3e')" class="Clickable" />
+        </td>
+        <td>
+          
+                 <a class="Button Color1" href="#replyForm">Reply</a>
+        </td>
+        <td style="width: 150px;">
+<span><img src="/img/icn/user.png" /><b>robert</b></span>
+     
+        </td>
+        <td>
+            12/3/2009 12:20:32 PM  
+        </td> 
+            <td>
+                <a onclick="OpenModal('/ifr/register', 350, 200)" title="Header" ><img src="/img/icn/header.gif" /></a>
+              
+        </td>
+    </tr>
+</table>
+          <br /> 
+<table width="100%" class="PostArticle" cellspacing="0" cellpadding="5">
+    <tr>
+        
+        <td align="left" valign="top" colspan="9">
+            <pre class="ForumPostContentText">On Wed, 2 Dec 2009 08:54:56 +0000 (UTC), glen herrmannsfeldt
+&lt;gah@ugcs.caltech.edu&gt; wrote:
+&lt;snip&gt;
+&gt; Some years ago (about 1990) I was working with HP/UX Fortran,
+&gt; which has its own C interoperability.  Among others, there is
+&gt; a way to associate a unix file descriptor with a Fortran I/O
+&gt; unit.  I wrote a subroutine that would do popen, use a unix/C
+&gt; macro to extract the file descriptor, and then open a Fortran
+&gt; I/O unit.  I could then do Fortran I/O (specifically O) to the
+&gt; pipe.  I was a little unsure what would happen on close, as
+&gt; Fortran would likely fclose() the file instead of pclose(), but
+&gt; it seemed to work.  (The specific use was piping to lpr.)
+&gt; 
+If you just gave Fortran the fd, it presumably did a close() not an
+fclose(). The actual closing of the underlying pipe is the same; in
+Unix at the API level pipe opens are the same as any other file opens.
+But you probably leaked the memory for the FILE structure -- which
+probably doesn&#39;t hurt unless you do this zillions of times in one
+process (and if you&#39;re printing zillions of things, each with its own
+cover/banner page, I don&#39;t want this running in my shop &lt;G&gt; *).
+
+The only important difference between pclose() and fclose() is that
+pclose() returns the termination status of the child, waiting for it
+if necessary. Most programs, once they have officially ended = closed
+their output to you, terminate immediately or very soon; and if their
+output didn&#39;t indicate any error, probably terminate successfully; so
+the loss of this status probably doesn&#39;t matter, except possibly
+confusing a later wait() if the same program creates *other* children.
+(Although the OP&#39;s code, presumably only a testcase or example, didn&#39;t
+examine the output from the child, just relayed it.)
+
+&gt; About all I can think of is to write wrappers for the C functions,
+&gt; and print out the arguments.  Probably with %P for the pointers.
+&gt; 
+If you mean in C (*printf) that&#39;s %p . Specifiers are case-sensitive. 
+
+&gt; I wonder, though, if some important part of the C I/O library
+&gt; is not being initialized.
+&gt; 
+Historically that has sometimes (often?) been an issue for Fortran/C
+I/O in general, but I would be a bit surprised it it was particular to
+popen/pipes. And I would expect any sane implementator providing C
+interop to make it work with the C RTL, although I don&#39;t recall and on
+a quick search didn&#39;t find an explicit requirement to do so.
+
+Also, a nit in the OP&#39;s code: it isn&#39;t necessary to reduce the len
+argument to fgets() by 1 to allow for the terminating null. On some
+other C routines you do, but fgets() handles this for you. OTOH it
+doesn&#39;t hurt, unless you&#39;ve set the buffer size so exactly one char
+matters, which on modern systems would usually be nutso.
+
+(* Actually, this is not as absurd as I make it sound; I once worked
+on a system for a then-major financial institution which, among other
+things, after close of stock markets each business day generated a
+report to a printer at each of several thousand branch offices.)
+
+</pre>
+        </td>
+    </tr>
+    <tr class="ListItem">
+     
+              <td style="width:95px">
+                  <table style="text-align: center;  width:90px" class="Voting" voteSum="0">
+    <tr>
+        <td>
+            <img src="/img/icn/plus32.png"  height="20px"  style="cursor: pointer" title="Vote Up!" onclick="OnVoteArticleReply($(this).closest('table'),'&lt;c9sji5h3odduhsck729a66dugssa0505bu@4ax.com&gt;', true);" />
+        </td>
+        <td style="color: Green; font-weight: bold; font-size: 15px" title="0 Total Votes" >
+           0
+        </td>
+        <td>
+            <img src="/img/icn/minus32.png"  height="20px"  style="cursor: pointer" title="Vote Down!" onclick="OnVoteArticleReply($(this).closest('table'),'&lt;c9sji5h3odduhsck729a66dugssa0505bu@4ax.com&gt;', false);" />
+        </td>
+    </tr>
+</table>
+
+            </td>
+                <td>              <img title="Report As Spam" src="/img/icn/spam.png" onclick="ReportSpamReply('%3cc9sji5h3odduhsck729a66dugssa0505bu%404ax.com%3e')" class="Clickable" />
+        </td>
+        <td>
+          
+                 <a class="Button Color1" href="#replyForm">Reply</a>
+        </td>
+        <td style="width: 150px;">
+<span><img src="/img/icn/user.png" /><b>David</b></span>
+     
+        </td>
+        <td>
+            12/17/2009 9:07:50 AM  
+        </td> 
+            <td>
+                <a onclick="OpenModal('/ifr/register', 350, 200)" title="Header" ><img src="/img/icn/header.gif" /></a>
+              
+        </td>
+    </tr>
+</table>
+          </td>
+                  <td valign="top" rowspan="99">
+                      <table class="GroupLink"><tr><td><a href="/comp.lang.fortran/"><img src="/img/icn/group.png" /> <b>comp.lang.fortran</b></a>
+<a href="/group/comp.lang.fortran"><img title="comp.lang.fortran Group Information" src="/img/icn/i.png" /></a> 
+<img src="/img/icn/article.gif" />10284 articles.  <img src="/img/icn/star2.gif" />29 followers. </td></tr></table><br />
+                      <img src="/img/icn/reply.png" />
+                      <b>8 Replies </b>
+                      <br />
+                      <img src="/img/icn/eye.png" />
+                      <b>108 Views</b>
+                      <br /><br /> 
+                        (page loaded in 0.342 seconds)  <br /> 
+                      <br /> 
+                      <div id="divSimiliar" style="width:200px">
+                        <b>Similiar Articles:</b><br /><br /><div class="ArticleLink"><img src="/img/icn/article.gif" /> <a href="http://compgroups.net/comp.lang.fortran/detecting-floating-point-error-code-from-wi/352370"><b>Detecting floating-point error code from Windows Gfortran - comp ...</b></a><br/>... ieee_arithmetic, using a combination of fenv.h and IA intrinsics, via iso_c_interop. ... I think work on adding the Fortran 2003 IEEE support to gfortran will start for ...</div><br/><div class="ArticleLink"><img src="/img/icn/article.gif" /> <a href="http://compgroups.net/comp.lang.fortran/problem-with-mixed-c-and-fortran-code/410578"><b>problem with mixed c and fortran code - comp.lang.fortran ...</b></a><br/>Disagreements are good: if we always agreed from the start there would be no point ... or will know, &gt; or _want to know_, more to the point), but given Fortran-C interop ...</div><br/><div class="ArticleLink"><img src="/img/icn/article.gif" /> <a href="http://compgroups.net/comp.lang.fortran/how-to-get-the-output-of-call-system-in-a-v/216294"><b>how to get the output of call system in a variable - comp.lang ...</b></a><br/>In Unix/C, you use popen() and read the resulting stream. That is a little harder in Fortran, and I believe technically not allowed in C interoperability, but ...</div><br/><div class="ArticleLink"><img src="/img/icn/article.gif" /> <a href="http://compgroups.net/comp.lang.fortran/sockets-in-gfortran/404454"><b>Sockets in gfortran? - comp.lang.fortran</b></a><br/>This is all from before f2003 C interop (as mentioned, the original Unix versions ... 2003/03/06 19:38:16 maine Exp $ */ &gt; /* $Name: =A0$ */ &gt; &gt; /* clientc.c &gt; =A0 * open a ...</div><br/><div class="ArticleLink"><img src="/img/icn/article.gif" /> <a href="http://compgroups.net/comp.lang.fortran/difference-between-passing-a-number-and-a-v/379807"><b>Difference between passing a number and a variable to a subroutine ...</b></a><br/>C interop is an exception. &gt; I seem to remember that passing (X) instead of X could ... Open the files. print*, filename1 CALL h5fopen_f (filename1, H5F ...</div><br/><div class="ArticleLink"><img src="/img/icn/article.gif" /> <a href="http://compgroups.net/comp.lang.fortran/where-did-fortran-go/407153"><b>Where did Fortran go? - comp.lang.fortran</b></a><br/>Hence, the availability of a free/open source compiler is a selling point ... The C-interoperability feature from F2003 is an excellent example of this.</div><br/><div class="ArticleLink"><img src="/img/icn/article.gif" /> <a href="http://compgroups.net/comp.lang.fortran/gui-fortran/262023"><b>gui fortran - comp.lang.fortran</b></a><br/>In fact, the problem could be overcome in 32-bit Windows with C interoperability but the ... &gt; -Robin If you&#39;re familiar with Delphi (or Lazarus as an open source ...</div><br/><div class="ArticleLink"><img src="/img/icn/article.gif" /> <a href="http://compgroups.net/comp.lang.fortran/code-speed-moving-from-fortran-77-compiler/483993"><b>code speed moving from fortran 77 compiler to f2003 compiler ...</b></a><br/>&gt; The open watcom f77 compiler was the premier 32 bit compiler in &gt; it&#39;s day ... Newer versions of fortran support interoperability with C in a direct way.</div><br/><div class="ArticleLink"><img src="/img/icn/article.gif" /> <a href="http://compgroups.net/comp.lang.c++/error-lnk2019-unresolved-external-symbol-main-r/214378"><b>error LNK2019: unresolved external symbol _main referenced in ...</b></a><br/>This particular function calls a standard C or C++ ... LPWSTR, LPSTR et al where it makes sense for WINAPI interop ... On Apr 4, 7:12=A0pm, &quot;Alf P. Steinbach&quot; &lt;al...@start.no ...</div><br/><div class="ArticleLink"><img src="/img/icn/article.gif" /> <a href="http://compgroups.net/comp.std.c++/std-atomic_bool-vs-std-atomic-bool/379108"><b>std::atomic_bool vs. std::atomic<bool> - comp.std.c++</b></a><br/>... for compatibility with the proposal to the C ... xxx type where there is one in order to allow interoperability ... http://www.open-std.org/jtc1/sc22/wg21/docs/papers ...</div><br/><div class="ArticleLink"><img src="/img/icn/article.gif" /> <a rel="nofollow" href="http://msdn.microsoft.com/en-us/library/ms173186(v=VS.80).aspx"><b>How to: Use COM Interop to Create an Excel Spreadsheet (C#)</b></a><br/>The following code example illustrates how to use COM interop to create an Excel spreadsheet. For more information on Excel, see Microsoft Excel Objects, and Open Method</div><br/><div class="ArticleLink"><img src="/img/icn/article.gif" /> <a rel="nofollow" href="http://www.dotnetperls.com/word"><b>C# Word Interop: Microsoft.Office.Interop.Word - Dot Net Perls</b></a><br/>Word document [word.doc] One Two three Program that uses Microsoft Word interop [C# ... application = new Application(); Document document = application.Documents.Open(&quot;C ...</div><br/><i>7/29/2012 8:30:21 PM</i>
+                         <br /><br />
+                        <div style="text-align:center"><div id="azk24097"></div>   </div>   
+                         </div>
+                 </td>
+    </tr>
+     <tr>
+            <td valign="top">
+                <br />
+                  
+                <form id="replyForm">
+<table>
+    <tr>
+        <td>
+            <b>Reply:</b><br />
+            <textarea id="Body" name="Body" cols="83" rows="10"style="border:1px solid green"></textarea>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <input type="button" onclick="PostArticle($(this).closest('form'))" value=" Post Reply "
+                class="Button Color1" />
+              <input name="insertSignature" type="button" class="Button Color2" value="Insert Signature" onclick="InsertSignature( $('#Body'),'http://compgroups.net/comp.lang.fortran/c-interop-to-popen/379831') " />
+           
+        </td>
+    </tr>
+</table>
+<input id="MessageId" name="MessageId" type="hidden" value="&lt;hf55gs$cdd$1@air.soe.uq.edu.au>" />
+<input id="Group" name="Group" type="hidden" value="comp.lang.fortran" />
+<input id="Subject" name="Subject" type="hidden" value="RE: C interop to popen" />
+</form>
+ 
+                   <br />  <br />  <table width="100%" class="PostReply"><tr><td> <div id="azk50008"></div>  </td><td align="right">
+                         <div id="azk15916"></div>   </td> </tr></table><br />
+            </td>
+        </tr>
+        <tr>
+            <td>
+            
+        </td>
+        </tr>
+</table> 
+
+                <script type="text/javascript">var p="http",d="static";if(document.location.protocol=="https:"){p+="s";d="engine";}var z=document.createElement("script");z.type="text/javascript";z.async=true;z.src=p+"://"+d+".adzerk.net/ados.js";var s=document.getElementsByTagName("script")[0];s.parentNode.insertBefore(z,s);</script>
+
+                <script type="text/javascript">
+          var ados = ados || {};
+          ados.run = ados.run || [];
+          ados.run.push(function() { 
+          ados_add_placement(2072, 17356, "azk25862", 5);
+          ados_add_placement(2072, 17356, "azk26003", 5);
+          ados_add_placement(2072, 17356, "azk50008", 5);
+          ados_add_placement(2072, 17356, "azk15916", 5);
+          ados_add_placement(2072, 17356, "azk24097", 6);
+          ados_load();
+          });
+        </script>
+       
+
+  
+
+                        </td>
+                    </tr>
+                </table>
+
+            </td>
+            <td valign="top" style=" text-align: right;" class="MainRight">
+                 
+            </td>
+        </tr>
+        <tr >
+        <td  class="MainLeft"></td>
+        <td class="Footer" style="text-align:center;">           
+        <a href="/site~privacy">Privacy Policy</a>  |  All Times Are GMT(UTC) | <i>powered by</i> <img src="/img/icn/aspnet.gif" />
+        </td>
+        <td  class="MainRight"></td>
+        </tr>
+    </table>    
+      
+
+<script type="text/javascript">
+	var clicky_site_ids = clicky_site_ids || [];
+clicky_site_ids.push(191998);
+(function() {
+  var s = document.createElement('script');
+  s.type = 'text/javascript';
+  s.async = true;
+  s.src = '//static.getclicky.com/js';
+  ( document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0] ).appendChild( s );
+})();
+</script>
+
+    
+</body>
+</html>
