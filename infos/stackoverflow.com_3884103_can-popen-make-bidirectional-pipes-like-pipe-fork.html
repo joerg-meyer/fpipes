@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    
+    <title>c - Can popen() make bidirectional pipes like pipe() + fork()? - Stack Overflow</title>
+    <link rel="shortcut icon" href="http://cdn.sstatic.net/stackoverflow/img/favicon.ico">
+    <link rel="apple-touch-icon" href="http://cdn.sstatic.net/stackoverflow/img/apple-touch-icon.png">
+    <link rel="search" type="application/opensearchdescription+xml" title="Stack Overflow" href="/opensearch.xml">
+
+    
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://cdn.sstatic.net/js/stub.js?v=8a629d6e9fb6"></script>
+    <link rel="stylesheet" type="text/css" href="http://cdn.sstatic.net/stackoverflow/all.css?v=24fdd40e5473">
+    
+    <meta name="relativepagescore" content="206902">
+    <link rel="canonical" href="http://stackoverflow.com/questions/3884103/can-popen-make-bidirectional-pipes-like-pipe-fork">
+    <link rel="alternate" type="application/atom+xml" title="Feed for question 'Can popen() make bidirectional pipes like pipe() + fork()?'" href="/feeds/question/3884103">
+    <script type="text/javascript">
+        
+        StackExchange.ready(function () {
+            
+            StackExchange.question.init({showAnswerHelp:true,totalCommentCount:2,shownCommentCount:2,highlightColor:'#F4A83D',backgroundColor:'#FFF',questionId:3884103});
+
+            styleCode();
+
+                StackExchange.realtime.subscribeToQuestion('1', '3884103');
+            
+                
+        });
+    </script>
+
+
+    <script type="text/javascript">
+        StackExchange.init({"stackAuthUrl":"https://stackauth.com","serverTime":1353335792,"styleCode":true,"enableUserHovercards":true,"site":{"name":"Stack Overflow","description":"Q&A for professional and enthusiast programmers","isNoticesTabEnabled":true,"recaptchaPublicKey":"6LdchgIAAAAAAJwGpIzRQSOFaO0pU6s44Xt8aTwc","enableSocialMediaInSharePopup":true},"user":{"fkey":"724714e6d0f57a1f056684e8dbc1f097","isAnonymous":true}});
+        StackExchange.using.setCacheBreakers({"js/prettify-full.js":"c862bf93b3ec","js/moderator.js":"37bba549a03e","js/full-anon.js":"bcd6f2e0d542","js/full.js":"87618162bac4","js/wmd.js":"89ec12ce09df","js/third-party/jquery.autocomplete.min.js":"e5f01e97f7c3","js/mobile.js":"6eb68240242f","js/help.js":"fc9fb0517db2","js/tageditor.js":"450c9e8426fc","js/tageditornew.js":"9ac6c13a3a7f","js/inline-tag-editing.js":"30f72b99548b","js/revisions.js":"8c6bcd93b7fe","js/review.js":"37dd8dc83788"});
+        
+    </script>
+</head>
+<body class="question-page">
+    <noscript><div id="noscript-padding"></div></noscript>
+    <div id="notify-container"></div>
+    <div id="overlay-header"></div>
+    <div id="custom-header"></div>
+
+    <div class="container">
+        <div id="header">
+            <div id="portalLink">
+                <a class="genu" href="http://stackexchange.com" onclick="StackExchange.ready(function(){genuwine.click();});return false;">Stack Exchange</a>
+            </div>
+            <div id="topbar">
+                <div id="hlinks">
+                    
+
+
+
+
+
+
+
+
+
+<span id="hlinks-user">
+
+</span>
+<span id="hlinks-nav">
+                   <a href="/users/login?returnurl=%2fquestions%2f3884103%2fcan-popen-make-bidirectional-pipes-like-pipe-fork">log in</a>
+
+ <span class="lsep">|</span>
+                    <a href="http://careers.stackoverflow.com">careers 2.0</a>
+
+ <span class="lsep">|</span>
+
+</span>
+<span id="hlinks-custom">
+        <a href="http://chat.stackoverflow.com">chat</a>
+
+ <span class="lsep">|</span>
+            <a href="http://meta.stackoverflow.com">meta</a>
+
+ <span class="lsep">|</span>
+        <a href="/about">about</a>
+
+ <span class="lsep">|</span>
+    <a href="/faq">faq</a>
+
+</span>
+                </div>
+                <div id="hsearch">
+                    <form id="search" action="/search" method="get" autocomplete="off">
+                    <div>
+                        <input autocomplete="off" name="q" class="textbox" placeholder="search" tabindex="1" type="text" maxlength="140" size="28" value="">
+                    </div>
+                    </form>
+                </div>
+            </div>
+            <br class="cbt">
+            <div id="hlogo">
+                <a href="/" >Stack Overflow</a>
+            </div>
+            <div id="hmenus">
+                <div class="nav mainnavs">
+                    <ul>
+                        <li class="youarehere"><a id="nav-questions" href="/questions">Questions</a></li>
+                        <li><a id="nav-tags" href="/tags">Tags</a></li>
+                        <li><a id="nav-users" href="/users">Users</a></li>
+                        <li><a id="nav-badges" href="/badges">Badges</a></li>
+                        <li><a id="nav-unanswered" href="/unanswered">Unanswered</a></li>
+                    </ul>
+                </div>
+                <div class="nav askquestion">
+                    <ul>
+                        <li>
+                            <a id="nav-askquestion"  href="/questions/ask">Ask Question</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        
+
+
+
+        <div id="content">
+            
+
+<div itemscope itemtype="http://schema.org/Article">
+<link itemprop="image" href="http://cdn.sstatic.net/stackoverflow/img/apple-touch-icon.png">
+<div id="question-header">
+    <h1 itemprop="name"><a href="/questions/3884103/can-popen-make-bidirectional-pipes-like-pipe-fork" class="question-hyperlink">Can popen() make bidirectional pipes like pipe() + fork()?</a></h1>
+</div>
+<div id="mainbar">
+
+
+
+<div class="question" id="question" data-questionid="3884103" >
+            <div class="everyonelovesstackoverflow" id="adzerk1">
+        </div>
+
+
+
+    <table>
+    <tr>
+    <td class="votecell">
+        
+
+<div class="vote">
+    <input type="hidden" value="3884103">
+    <a class="vote-up-off" title="This question shows research effort; it is useful and clear (click again to undo)">up vote</a>
+    <span class="vote-count-post">7</span>
+    <a class="vote-down-off" title="This question does not show any research effort; it is unclear or not useful (click again to undo)">down vote</a>
+    
+    <a class="star-off" href="#" title="This is a favorite question (click again to undo)">favorite</a>
+    <div class="favoritecount"><b>6</b></div>   
+
+ 
+</div>
+
+    </td>
+    
+<td class="postcell">
+<div>          
+    <div class="post-text" itemprop="description">
+        <p>I'm implementing piping on a simulated file system in C++ (with mostly C).  It needs to run commands in the host shell but perform the piping itself on the simulated file system.  </p>
+
+<p>I could achieve this with the <code>pipe()</code>, <code>fork()</code>, and <code>system()</code> system calls, but I'd prefer to use <code>popen()</code> (which handles creating a pipe, forking a process, and passing a command to the shell).  This may not be possible because (I think) I need to be able to write from the parent process of the pipe, read on the child process end, write the output back from the child, and finally read that output from the parent.  The man page for <code>popen()</code> on my system says a bidirectional pipe is possible, but my code needs to run on a system with an older version supporting only unidirectional pipes.  </p>
+
+<p><strong>With the separate calls above, I can open/close pipes to achieve this.  Is that possible with <code>popen()</code>?</strong></p>
+
+<p>For a trivial example, to run <code>ls -l | grep .txt | grep cmds</code> I need to: </p>
+
+<ul>
+<li>Open a pipe and process to run <code>ls -l</code> on the host; read its output back</li>
+<li>Pipe the output of <code>ls -l</code> back to my simulator </li>
+<li>Open a pipe and process to run <code>grep .txt</code> on the host on the piped output of <code>ls -l</code></li>
+<li>Pipe the output of this back to the simulator (stuck here)</li>
+<li>Open a pipe and process to run <code>grep cmds</code> on the host on the piped output of <code>grep .txt</code></li>
+<li>Pipe the output of this back to the simulator and print it</li>
+</ul>
+
+<p><strong>man popen</strong></p>
+
+<p>From Mac OS X:</p>
+
+<blockquote>
+  <p>The <code>popen()</code> function 'opens' a
+  process by creating a bidirectional
+  pipe, forking, and invoking the shell.
+  Any streams opened by previous <code>popen()</code>
+  calls in the parent process are closed
+  in the new child process.
+  Historically, <code>popen()</code> was implemented
+  with a unidirectional pipe; hence,
+  many implementations of <code>popen()</code> only
+  allow the mode argument to specify
+  reading or writing, not both.  Because
+  <code>popen()</code> is now implemented using a
+  bidirectional pipe, the mode argument
+  may request a bidirectional data flow.
+  The mode argument is a pointer to a
+  null-terminated string which must be
+  'r' for reading, 'w' for writing, or
+  'r+' for reading and writing.</p>
+</blockquote>
+
+    </div>            
+    <div class="post-taglist">
+        <a href="/questions/tagged/c" class="post-tag" title="show questions tagged 'c'" rel="tag">c</a> <a href="/questions/tagged/fork" class="post-tag" title="show questions tagged 'fork'" rel="tag">fork</a> <a href="/questions/tagged/pipe" class="post-tag" title="show questions tagged 'pipe'" rel="tag">pipe</a> <a href="/questions/tagged/popen" class="post-tag" title="show questions tagged 'popen'" rel="tag">popen</a> <a href="/questions/tagged/dup2" class="post-tag" title="show questions tagged 'dup2'" rel="tag">dup2</a> 
+    </div>
+    <table class="fw">
+    <tr>
+    <td class="vt">
+
+
+
+
+
+
+
+
+
+<div class="post-menu"><a href="/q/3884103" title="short permalink to this question" class="short-link" id="link-post-3884103">share</a><span class="lsep">|</span><a href="/posts/3884103/edit" class="suggest-edit-post" title="">improve this question</a></div>
+    </td>
+    <td align="right" class="post-signature">
+
+
+    <div class="user-info ">
+        <div class="user-action-time">
+                            edited
+                             <a href="/posts/3884103/revisions" title="show all edits to this post"><span title="2011-05-04 19:58:54Z" class="relativetime">May 4 '11 at 19:58</span></a>
+
+        </div>
+        <div class="user-gravatar32">
+            
+        </div>
+        <div class="user-details">
+            <br>
+            
+        </div>
+    </div>
+    </td>
+    <td class="post-signature owner">
+    
+
+    <div class="user-info ">
+        <div class="user-action-time">
+                                    asked
+ <span title="2010-10-07 17:15:53Z" class="relativetime">Oct 7 '10 at 17:15</span>
+        </div>
+        <div class="user-gravatar32">
+            <a href="/users/149428/tedmiston"><div class=""><img src="http://www.gravatar.com/avatar/3724bf1683bf8e459289efe2838d0fa7?s=32&amp;d=identicon&amp;r=PG" alt="" width="32" height="32"></div></a>
+        </div>
+        <div class="user-details">
+            <a href="/users/149428/tedmiston">tedmiston</a><br>
+            <span class="reputation-score" title="reputation score" dir="ltr">404</span><span title="4 silver badges"><span class="badge2"></span><span class="badgecount">4</span></span><span title="9 bronze badges"><span class="badge3"></span><span class="badgecount">9</span></span>
+        </div>
+    </div>
+
+    </td>
+    </tr>
+    </table>
+</div>
+</td>    </tr>
+
+
+<tr>
+<td class="votecell"></td>
+<td>
+    <div id="comments-3884103" class="comments">
+        <table>
+        <tbody>
+                    
+    <tr id="comment-4136195" class="comment">
+        <td class="comment-actions"><table><tbody><tr>
+<td class="comment-score">
+<span title="number of 'useful comment' votes received" class="cool">2</span>
+</td>
+<td>
+&nbsp;
+</td></tr>
+</tbody></table></td>
+        <td class="comment-text"><div><span class="comment-copy">Ignore this bad manual, which is making it seem like unidirectionality of pipes is a legacy behavior. Your implementation&#39;s behavior is nonstandard and not likely to ever be supported in other environments. Simply setup the pipes and fork and exec yourself, and all will be happy.</span> &ndash;&nbsp;<a href="/users/379897/r" title="61602 reputation" class="comment-user">R..</a> <span class="comment-date" dir="ltr"><span title="2010-10-07 19:20:04Z" class="relativetime-clean">Oct 7 '10 at 19:20</span></span></div></td>
+    </tr>
+            
+    <tr id="comment-6740593" class="comment">
+        <td></td>
+        <td class="comment-text"><div><span class="comment-copy">This entire thread is made of win, all the answers and the question deserve +1.</span> &ndash;&nbsp;<a href="/users/149482/matt-joiner" title="19196 reputation" class="comment-user">Matt Joiner</a> <span class="comment-date" dir="ltr"><span title="2011-05-03 01:14:47Z" class="relativetime-clean">May 3 '11 at 1:14</span></span><span class="edited-yes" title="this comment was edited"></span></div></td>
+    </tr>
+
+        </tbody>
+    
+        </table>
+    </div>
+    
+    
+    <div class="was-this-helpful">
+        feedback
+    </div>
+    
+</td>
+</tr>            </table>    
+</div>
+
+
+    
+
+
+<div id="answers">
+
+    <a name="tab-top"></a>
+    <div id="answers-header">
+        <div class="subheader answers-subheader">
+            <h2>
+                    3 Answers
+            </h2>
+            <div id="tabs">
+                <a href="/questions/3884103/can-popen-make-bidirectional-pipes-like-pipe-fork?answertab=active#tab-top" title="Answers with the latest activity first">active</a>
+<a href="/questions/3884103/can-popen-make-bidirectional-pipes-like-pipe-fork?answertab=oldest#tab-top" title="Answers in the order they were provided">oldest</a>
+<a class="youarehere" href="/questions/3884103/can-popen-make-bidirectional-pipes-like-pipe-fork?answertab=votes#tab-top" title="Answers with the highest score first">votes</a>
+
+            </div>
+        </div>    
+    </div>    
+
+
+
+
+
+  
+    <a name="3884227"></a>
+    <div id="answer-3884227" class="answer accepted-answer"  data-answerid="3884227">
+        <table>
+        <tr>
+        <td class="votecell">
+            
+
+<div class="vote">
+    <input type="hidden" value="3884227">
+    <a class="vote-up-off" title="This answer is useful (click again to undo)">up vote</a>
+    <span class="vote-count-post">4</span>
+    <a class="vote-down-off" title="This answer is not useful (click again to undo)">down vote</a>
+    
+
+            <span class="vote-accepted-on load-accepted-answer-date" title="loading when this answer was accepted...">accepted</span>
+ 
+</div>
+
+        </td>
+        
+
+
+<td class="answercell">
+    <div class="post-text"><p>You seem to have answered your own question. If your code needs to work on an older system that doesn't support <code>popen</code> opening bidirectional pipes, then you won't be able to use <code>popen</code> (at least not the one that's supplied).</p>
+
+<p>The real question would be about the exact capabilities of the older systems in question. In particular, does their <code>pipe</code> support creating bidirectional pipes? If they have a <code>pipe</code> that can create a bidirectional pipe, but <code>popen</code> that doesn't, then I'd write the main stream of the code to use <code>popen</code> with a bidirectional pipe, and supply an implementation of <code>popen</code> that can use a bidirectional pipe that gets compiled in an used where needed.</p>
+
+<p>If you need to support systems old enough that <code>pipe</code> only supports unidirectional pipes, then you're pretty much stuck with using <code>pipe</code>, <code>fork</code>, <code>dup2</code>, etc., on your own. I'd probably still wrap this up in a function that works <em>almost</em> like a modern version of <code>popen</code>, but instead of returning one file handle, fills in a small structure with two file handles, one for the child's <code>stdin</code>, the other for the child's <code>stdout</code>.</p>
+</div>
+    <table class="fw">
+    <tr>
+    <td class="vt">
+
+
+
+
+
+
+
+
+
+<div class="post-menu"><a href="/a/3884227" title="short permalink to this answer" class="short-link" id="link-post-3884227">share</a><span class="lsep">|</span><a href="/posts/3884227/edit" class="suggest-edit-post" title="">improve this answer</a></div>                    </td>
+            
+
+
+    <td align="right" class="post-signature">   
+       
+
+    
+
+    <div class="user-info user-hover">
+        <div class="user-action-time">
+                                    answered
+ <span title="2010-10-07 17:32:18Z" class="relativetime">Oct 7 '10 at 17:32</span>
+        </div>
+        <div class="user-gravatar32">
+            <a href="/users/179910/jerry-coffin"><div class=""><img src="http://www.gravatar.com/avatar/d8962238339d771f0348967be6f97b1b?s=32&amp;d=identicon&amp;r=PG" alt="" width="32" height="32"></div></a>
+        </div>
+        <div class="user-details">
+            <a href="/users/179910/jerry-coffin">Jerry Coffin</a><br>
+            <span class="reputation-score" title="reputation score 152658" dir="ltr">153k</span><span title="9 gold badges"><span class="badge1"></span><span class="badgecount">9</span></span><span title="99 silver badges"><span class="badge2"></span><span class="badgecount">99</span></span><span title="307 bronze badges"><span class="badge3"></span><span class="badgecount">307</span></span>
+        </div>
+    </div>
+
+    </td>
+    </tr>
+    </table>
+</td>        </tr>
+
+
+<tr>
+<td class="votecell"></td>
+<td>
+    <div id="comments-3884227" class="comments">
+        <table>
+        <tbody>
+                    
+    <tr id="comment-4286728" class="comment">
+        <td></td>
+        <td class="comment-text"><div><span class="comment-copy">I think you&#39;ve helped me realize that my question was really, &quot;Is the bidirectional capability &#39;common&#39;?&quot;, and it seems it is not.  Thanks for the great response.</span> &ndash;&nbsp;<a href="/users/149428/tedmiston" title="404 reputation" class="comment-user owner">tedmiston</a> <span class="comment-date" dir="ltr"><span title="2010-10-23 00:58:58Z" class="relativetime-clean">Oct 23 '10 at 0:58</span></span></div></td>
+    </tr>
+
+        </tbody>
+    
+        </table>
+    </div>
+    
+    
+    <div class="was-this-helpful">
+        feedback
+    </div>
+    
+</td>
+</tr>            </table>
+</div>
+        <div class="everyonelovesstackoverflow" id="adzerk3">
+        </div>
+
+
+
+
+  
+    <a name="3884402"></a>
+    <div id="answer-3884402" class="answer"  data-answerid="3884402">
+        <table>
+        <tr>
+        <td class="votecell">
+            
+
+<div class="vote">
+    <input type="hidden" value="3884402">
+    <a class="vote-up-off" title="This answer is useful (click again to undo)">up vote</a>
+    <span class="vote-count-post">13</span>
+    <a class="vote-down-off" title="This answer is not useful (click again to undo)">down vote</a>
+    
+
+ 
+</div>
+
+        </td>
+        
+
+
+<td class="answercell">
+    <div class="post-text"><p>I'd suggest writing your own function to do the piping/forking/system-ing for you. You could have the function spawn a process and return read/write file descriptors, as in...</p>
+
+<pre><code>typedef void pfunc_t (int rfd, int wfd);
+
+pid_t pcreate(int fds[2], pfunc_t pfunc) {
+    /* Spawn a process from pfunc, returning it's pid. The fds array passed will
+     * be filled with two descriptors: fds[0] will read from the child process,
+     * and fds[1] will write to it.
+     * Similarly, the child process will receive a reading/writing fd set (in
+     * that same order) as arguments.
+    */
+    pid_t pid;
+    int pipes[4];
+
+    /* Warning: I'm not handling possible errors in pipe/fork */
+
+    pipe(&amp;pipes[0]); /* Parent read/child write pipe */
+    pipe(&amp;pipes[2]); /* Child read/parent write pipe */
+
+    if ((pid = fork()) &gt; 0) {
+        /* Parent process */
+        fds[0] = pipes[0];
+        fds[1] = pipes[3];
+
+        close(pipes[1]);
+        close(pipes[2]);
+
+        return pid;
+
+    } else {
+        close(pipes[0]);
+        close(pipes[3]);
+
+        pfunc(pipes[2], pipes[1]);
+
+        exit(0);
+    }
+
+    return -1; /* ? */
+}
+</code></pre>
+
+<p>You can add whatever functionality you need in there.</p>
+</div>
+    <table class="fw">
+    <tr>
+    <td class="vt">
+
+
+
+
+
+
+
+
+
+<div class="post-menu"><a href="/a/3884402" title="short permalink to this answer" class="short-link" id="link-post-3884402">share</a><span class="lsep">|</span><a href="/posts/3884402/edit" class="suggest-edit-post" title="">improve this answer</a></div>                    </td>
+            
+
+
+    <td align="right" class="post-signature">   
+       
+
+    
+
+    <div class="user-info ">
+        <div class="user-action-time">
+                                    answered
+ <span title="2010-10-07 17:55:42Z" class="relativetime">Oct 7 '10 at 17:55</span>
+        </div>
+        <div class="user-gravatar32">
+            <a href="/users/469300/uwop-episdn"><div class=""><img src="http://www.gravatar.com/avatar/51d63ecef3a78c2533a11256627f3cb0?s=32&amp;d=identicon&amp;r=PG" alt="" width="32" height="32"></div></a>
+        </div>
+        <div class="user-details">
+            <a href="/users/469300/uwop-episdn">uʍop ǝpısdn</a><br>
+            <span class="reputation-score" title="reputation score" dir="ltr">7,363</span><span title="9 silver badges"><span class="badge2"></span><span class="badgecount">9</span></span><span title="39 bronze badges"><span class="badge3"></span><span class="badgecount">39</span></span>
+        </div>
+    </div>
+
+    </td>
+    </tr>
+    </table>
+</td>        </tr>
+
+
+<tr>
+<td class="votecell"></td>
+<td>
+    <div id="comments-3884402" class="comments">
+        <table>
+        <tbody>
+                    
+    <tr id="comment-4286735" class="comment">
+        <td></td>
+        <td class="comment-text"><div><span class="comment-copy">The implementation (while straightforward) is certainly appreciated.  Thank you for the great response.</span> &ndash;&nbsp;<a href="/users/149428/tedmiston" title="404 reputation" class="comment-user owner">tedmiston</a> <span class="comment-date" dir="ltr"><span title="2010-10-23 01:00:18Z" class="relativetime-clean">Oct 23 '10 at 1:00</span></span></div></td>
+    </tr>
+            
+    <tr id="comment-4297666" class="comment">
+        <td></td>
+        <td class="comment-text"><div><span class="comment-copy">Thank <i>you</i> for your great comment! Mood++;</span> &ndash;&nbsp;<a href="/users/469300/uwop-episdn" title="7363 reputation" class="comment-user">uʍop ǝpısdn</a> <span class="comment-date" dir="ltr"><span title="2010-10-24 20:26:22Z" class="relativetime-clean">Oct 24 '10 at 20:26</span></span></div></td>
+    </tr>
+            
+    <tr id="comment-12277151" class="comment">
+        <td></td>
+        <td class="comment-text"><div><span class="comment-copy">:D :D :D :D :D :D :D AWESOME</span> &ndash;&nbsp;<a href="/users/615740/tom-dignan" title="2730 reputation" class="comment-user">Tom Dignan</a> <span class="comment-date" dir="ltr"><span title="2012-03-12 11:30:50Z" class="relativetime-clean">Mar 12 at 11:30</span></span></div></td>
+    </tr>
+
+        </tbody>
+    
+        </table>
+    </div>
+    
+    
+    <div class="was-this-helpful">
+        feedback
+    </div>
+    
+</td>
+</tr>            </table>
+</div>
+
+
+  
+    <a name="3884215"></a>
+    <div id="answer-3884215" class="answer"  data-answerid="3884215">
+        <table>
+        <tr>
+        <td class="votecell">
+            
+
+<div class="vote">
+    <input type="hidden" value="3884215">
+    <a class="vote-up-off" title="This answer is useful (click again to undo)">up vote</a>
+    <span class="vote-count-post">6</span>
+    <a class="vote-down-off" title="This answer is not useful (click again to undo)">down vote</a>
+    
+
+ 
+</div>
+
+        </td>
+        
+
+
+<td class="answercell">
+    <div class="post-text"><p>POSIX stipulates that the <a href="http://www.opengroup.org/onlinepubs/9699919799/functions/popen.html"><code>popen()</code></a> call is not designed to provide bi-directional communication:</p>
+
+<blockquote>
+  <p>The mode argument to popen() is a string that specifies I/O mode:</p>
+  
+  <ol>
+  <li>If mode is r, when the child process is started, its file descriptor STDOUT_FILENO shall be the writable end of the pipe, and the file descriptor fileno(stream) in the calling process, where stream is the stream pointer returned by popen(), shall be the readable end of the pipe.</li>
+  <li>If mode is w, when the child process is started its file descriptor STDIN_FILENO shall be the readable end of the pipe, and the file descriptor fileno(stream) in the calling process, where stream is the stream pointer returned by popen(), shall be the writable end of the pipe.</li>
+  <li>If mode is any other value, the result is unspecified.</li>
+  </ol>
+</blockquote>
+
+<p>Any portable code will make no assumptions beyond that.  The BSD <code>popen()</code> is similar to what your question describes.</p>
+
+<p>Additionally, pipes are different from sockets and each pipe file descriptor is uni-directional.  You would have to create two pipes, one configured for each direction.</p>
+</div>
+    <table class="fw">
+    <tr>
+    <td class="vt">
+
+
+
+
+
+
+
+
+
+<div class="post-menu"><a href="/a/3884215" title="short permalink to this answer" class="short-link" id="link-post-3884215">share</a><span class="lsep">|</span><a href="/posts/3884215/edit" class="suggest-edit-post" title="">improve this answer</a></div>                    </td>
+    <td align="right" class="post-signature">
+
+
+    <div class="user-info ">
+        <div class="user-action-time">
+                            edited
+                             <a href="/posts/3884215/revisions" title="show all edits to this post"><span title="2010-10-07 18:12:17Z" class="relativetime">Oct 7 '10 at 18:12</span></a>
+
+        </div>
+        <div class="user-gravatar32">
+            
+        </div>
+        <div class="user-details">
+            <br>
+            
+        </div>
+    </div>
+    </td>
+            
+
+
+    <td align="right" class="post-signature">   
+       
+
+    
+
+    <div class="user-info user-hover">
+        <div class="user-action-time">
+                                    answered
+ <span title="2010-10-07 17:29:20Z" class="relativetime">Oct 7 '10 at 17:29</span>
+        </div>
+        <div class="user-gravatar32">
+            <a href="/users/15168/jonathan-leffler"><div class=""><img src="http://www.gravatar.com/avatar/7d0d66b076e3bc70819e50f8a25af8df?s=32&amp;d=identicon&amp;r=PG" alt="" width="32" height="32"></div></a>
+        </div>
+        <div class="user-details">
+            <a href="/users/15168/jonathan-leffler">Jonathan Leffler</a><br>
+            <span class="reputation-score" title="reputation score 178353" dir="ltr">178k</span><span title="17 gold badges"><span class="badge1"></span><span class="badgecount">17</span></span><span title="158 silver badges"><span class="badge2"></span><span class="badgecount">158</span></span><span title="329 bronze badges"><span class="badge3"></span><span class="badgecount">329</span></span>
+        </div>
+    </div>
+
+    </td>
+    </tr>
+    </table>
+</td>        </tr>
+
+
+<tr>
+<td class="votecell"></td>
+<td>
+    <div id="comments-3884215" class="comments dno">
+        <table>
+        <tbody>
+        
+            <tr><td></td><td></td></tr>
+        
+        </tbody>
+    
+        </table>
+    </div>
+    
+    
+    <div class="was-this-helpful">
+        feedback
+    </div>
+    
+</td>
+</tr>            </table>
+</div>
+    <a name='new-answer'></a>
+    <form id="post-form" action="/questions/3884103/answer/submit" method="post"  class="post-form">
+        <h2 class="space">Your Answer</h2>
+
+
+
+
+<script type="text/javascript">
+    StackExchange.ready(function() {
+        initTagRenderer("".split(" "), "".split(" "));
+         
+        prepareEditor({
+            heartbeatType: 'answer',
+            bindNavPrevention: true,
+            postfix: "",
+            onDemand: true,
+            discardSelector: ".discard-answer"
+            ,immediatelyShowMarkdownHelp:true
+        });
+        
+
+    });  
+</script>
+
+
+<div id="post-editor" class="post-editor">  
+
+    
+    <div class="wmd-container">
+        <div id="wmd-button-bar" class="wmd-button-bar"></div>
+        <textarea id="wmd-input" class="wmd-input" name="post-text" cols="92" rows="15" tabindex="101"></textarea>
+    </div>
+
+    <div class="fl" style="margin-top: 8px; height:24px;">&nbsp;</div>
+    <div id="draft-saved" class="draft-saved community-option fl" style="margin-top: 8px; height:24px; display:none;">draft saved</div>
+
+    <div id="draft-discarded" class="draft-discarded community-option fl" style="margin-top: 8px; height:24px; display:none;">draft discarded</div>
+
+
+
+    <div id="wmd-preview" class="wmd-preview"></div>
+    <div></div>
+    <div class="edit-block">
+        <input id="fkey" name="fkey" type="hidden" value="724714e6d0f57a1f056684e8dbc1f097">
+        <input id="author" name="author" type="text">
+    </div>
+</div>            <div class="form-item">
+        <table>
+        <tr>
+            <td class="vm open-id-login">
+                <a id="login-link" style="font-size: 200%; margin-left: 30px;" href="/users/login?returnurl=%2fquestions%2f3884103%2fcan-popen-make-bidirectional-pipes-like-pipe-fork">log in</a>
+                <script type="text/javascript">
+                    StackExchange.ready(function () {
+                        StackExchange.helpers.onClickDraftSave('#login-link');
+                    });
+                </script>
+            </td>
+            <td class="orcell">
+                <div class="orword">or</div>
+                <div class="orline"></div>
+            </td>
+            <td class="vm">
+                <div>
+                    <label for="display-name">Name</label>
+                    <input id="display-name" name="display-name" type="text" size="30" maxlength="30" value="" tabindex="105">
+                </div>
+                <div>
+                    <label for="m-address">Email</label>
+                    <input id="m-address" name="m-address" type="text" size="40" maxlength="100" value="" tabindex="106">
+                    <span class="edit-field-overlay">required, but never shown</span>
+                </div>
+                <div>
+                    <label for="home-page">Home Page</label>
+                    <input id="home-page" name="home-page" type="text" size="40" maxlength="200" value="" tabindex="107">
+                </div>
+            </td>
+        </tr>
+        </table>
+    </div>
+           
+            <div class="form-submit cbt">
+            <input id="submit-button" type="submit" value="Post Your Answer" tabindex="110">
+            <a href="#" class="discard-answer dno">discard</a>
+    <p class="privacy-policy-agreement">
+        By posting your answer, you agree to the 
+        <a href="http://stackexchange.com/legal/privacy-policy" target="_blank">privacy policy</a> and 
+        <a href="http://stackexchange.com/legal/terms-of-service" target="_blank">terms of service</a>.
+    </p>
+        </div>
+    </form>
+
+
+
+        <h2 class="bottom-notice">
+                Not the answer you're looking for? 
+            Browse other questions tagged <a href="/questions/tagged/c" class="post-tag" title="show questions tagged 'c'" rel="tag">c</a> <a href="/questions/tagged/fork" class="post-tag" title="show questions tagged 'fork'" rel="tag">fork</a> <a href="/questions/tagged/pipe" class="post-tag" title="show questions tagged 'pipe'" rel="tag">pipe</a> <a href="/questions/tagged/popen" class="post-tag" title="show questions tagged 'popen'" rel="tag">popen</a> <a href="/questions/tagged/dup2" class="post-tag" title="show questions tagged 'dup2'" rel="tag">dup2</a> 
+                or <a href="/questions/ask">ask your own question</a>.
+        </h2>
+</div>
+</div>
+<div id="sidebar">
+
+
+
+     <script type="text/javascript">
+        window.showNewUser = true;
+
+            
+                (function(){
+                    var cs = window.sessionStorage && window.sessionStorage['tNewsletter'];
+                    var m = /:\/\/([^\/]*)/.exec(document.referrer);
+                    var h = {'www.reddit.com':1,'news.ycombinator.com':1};
+                    if(window.sessionStorage && (cs || (m && m.length == 2 && h[m[1]]))){
+                        showNewUser = false;
+                        StackExchange.ready(function(){
+                            StackExchange.newsletterAd.loader(m[1], cs);
+                        });
+                    }
+                    if (window.localStorage && showNewUser){
+                        var c = parseInt(localStorage['nuCounter'],10); 
+                        c = isNaN(c) ? 1 : c+1;
+                        window.localStorage['nuCounter'] = c; 
+                        showNewUser = c < 10;
+                    }
+                })()
+            
+     </script>
+    <div class="module newuser newuser-greeting" id="newuser-box" style="display:none;">
+        <h4>Hello World!</h4>
+        <div>
+            <p>This is a collaboratively edited question and answer site for <b>professional and enthusiast programmers</b>. It's 100% free, no registration required.</p>
+            <p class="ar"><a href="/about?mnu=1">about &raquo;</a>&nbsp;&nbsp;&nbsp;<a href="/faq?mnu=1">faq &raquo;</a>
+            </p>
+        </div>
+    </div>
+     <script type="text/javascript">
+        if (showNewUser) {
+            document.getElementById('newuser-box').style.display = '';
+        }
+     </script>
+        <div class="module question-stats">
+        <p class="label-key">tagged</p>
+        <div class="tagged"><a href="/questions/tagged/c" class="post-tag" title="show questions tagged 'c'" rel="tag">c</a>&nbsp;<span class="item-multiplier"><span class="item-multiplier-x">&times;</span>&nbsp;<span class="item-multiplier-count">76162</span></span><br>
+<a href="/questions/tagged/fork" class="post-tag" title="show questions tagged 'fork'" rel="tag">fork</a>&nbsp;<span class="item-multiplier"><span class="item-multiplier-x">&times;</span>&nbsp;<span class="item-multiplier-count">1282</span></span><br>
+<a href="/questions/tagged/pipe" class="post-tag" title="show questions tagged 'pipe'" rel="tag">pipe</a>&nbsp;<span class="item-multiplier"><span class="item-multiplier-x">&times;</span>&nbsp;<span class="item-multiplier-count">1047</span></span><br>
+<a href="/questions/tagged/popen" class="post-tag" title="show questions tagged 'popen'" rel="tag">popen</a>&nbsp;<span class="item-multiplier"><span class="item-multiplier-x">&times;</span>&nbsp;<span class="item-multiplier-count">495</span></span><br>
+<a href="/questions/tagged/dup2" class="post-tag" title="show questions tagged 'dup2'" rel="tag">dup2</a>&nbsp;<span class="item-multiplier"><span class="item-multiplier-x">&times;</span>&nbsp;<span class="item-multiplier-count">45</span></span><br>
+</div>
+        <table id="qinfo">
+            <tr>
+                <td><p class="label-key">asked</p></td>
+                <td style="padding-left:10px"><p class="label-key" title="2010-10-07 17:15:53Z"><b>2 years ago</b></p></td>
+            </tr>
+            <tr>
+                <td><p class="label-key">viewed</p></td>
+
+                <td style="padding-left:10px">
+                    <p class="label-key">
+                        <b>2503 times</b>
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td><p class="label-key">active</p></td>
+                <td style="padding-left:10px"><p class="label-key"><b><a href="?lastactivity" class="lastactivity-link" title="2011-05-04 19:58:54Z">1 year ago</a></b></p></td>
+            </tr>
+        </table>
+    </div>
+        
+                <script type="text/javascript">
+                var scriptSrc = "http://engine.adzerk.net/z/8277/adzerk1_2_4_43,adzerk2_2_17_45,adzerk3_2_4_44?keywords=c,fork,pipe,popen,dup2";
+                if (document.referrer) {
+                    if (/\?/.test(scriptSrc))
+                        scriptSrc += "&";
+                    else
+                        scriptSrc += "?";
+                    scriptSrc += "xReferrer=" + document.referrer;
+                }
+                StackExchange.ready(function () {
+                    var z = document.createElement("script");
+                    z.type = "text/javascript";
+                    z.async = "true";
+                    z.src = scriptSrc;
+                    var s = document.getElementsByTagName("script")[0];
+                    s.parentNode.insertBefore(z, s);
+                });
+            </script>
+        <div class="everyonelovesstackoverflow" id="adzerk2">
+        </div>
+    <div id="hireme">
+        <script type="text/javascript">
+            var careers_adurl="http://careers.stackoverflow.com/gethired/js",careers_cssurl="http://careerscdn.sstatic.net/careers/gethired/sidebar.css?fffffffff879eaa0",careers_leaderboardcssurl="http://careerscdn.sstatic.net/careers/gethired/ninja.min.css?39369a",careers_companycssurl="http://careerscdn.sstatic.net/careers/gethired/company",careers_adselector="div.hireme, div#hireme";StackExchange.ready(function(){$.ajax({url:"http://careerscdn.sstatic.net/careers/gethired/loader.min.js?39369a",dataType:"script",cache:!0})})
+        </script>
+    </div>
+
+
+
+      
+    
+    <div class="module sidebar-linked">
+        <h4 id="h-linked">Linked</h4>
+        <div class="linked" data-tracker="lq=1">
+            <div class="spacer">
+<a href="/questions/6171552/popen-simultaneous-read-and-write" class="question-hyperlink">popen simultaneous read and write</a>
+</div>
+<div class="spacer">
+<a href="/questions/3910279/c-each-child-process-reads-alternate-lines" class="question-hyperlink">C: Each child process reads alternate lines</a>
+</div>
+<div class="spacer">
+<a href="/questions/5927965/c-control-i-o-of-another-program-simultaneously" class="question-hyperlink">C++ control I/O of another program simultaneously</a>
+</div>
+<div class="spacer">
+<a href="/questions/9556577/communicating-with-xboard-chess-engine-c-c" class="question-hyperlink">Communicating with XBoard (chess engine) (C++/C)</a>
+</div>
+<div class="spacer">
+<a href="/questions/10938130/calling-a-different-program-and-passing-it-arguments" class="question-hyperlink">Calling a different program and passing it arguments</a>
+</div>
+
+        </div>
+    </div>
+    <div class="module sidebar-related">
+        <h4 id="h-related">Related</h4>
+        <div class="related" data-tracker="rq=1">
+            <div class="spacer">
+<a href="/questions/916900/having-trouble-with-fork-pipe-dup2-and-exec-in-c" class="question-hyperlink">Having trouble with fork(), pipe(), dup2() and exec() in C</a>
+</div>
+<div class="spacer">
+<a href="/questions/948221/does-this-multiple-pipes-code-in-c-makes-sense" class="question-hyperlink">Does this multiple pipes code in C makes sense?</a>
+</div>
+<div class="spacer">
+<a href="/questions/1654550/fork-and-pipe" class="question-hyperlink">fork() and pipe()</a>
+</div>
+<div class="spacer">
+<a href="/questions/1735781/non-blocking-pipe-using-popen" class="question-hyperlink">Non-blocking pipe using popen?</a>
+</div>
+<div class="spacer">
+<a href="/questions/2428749/behavior-of-a-pipe-after-a-fork" class="question-hyperlink">Behavior of a pipe after a fork()</a>
+</div>
+<div class="spacer">
+<a href="/questions/4898294/parallel-fork-pipe" class="question-hyperlink">parallel fork pipe</a>
+</div>
+<div class="spacer">
+<a href="/questions/5136202/fork-pipe-problem" class="question-hyperlink">Fork + Pipe problem</a>
+</div>
+<div class="spacer">
+<a href="/questions/5302196/popen-to-pass-binary-data-between-processes" class="question-hyperlink">popen to pass binary data between processes</a>
+</div>
+<div class="spacer">
+<a href="/questions/5663086/passing-a-struct-with-2-dynamic-arrays-through-a-pipe-and-fork" class="question-hyperlink">Passing a struct with 2 dynamic arrays through a pipe and fork </a>
+</div>
+<div class="spacer">
+<a href="/questions/6822578/multiple-pipes-in-c" class="question-hyperlink">Multiple pipes in C</a>
+</div>
+<div class="spacer">
+<a href="/questions/6903812/multi-chains-of-pipes" class="question-hyperlink">multi chains of pipes</a>
+</div>
+<div class="spacer">
+<a href="/questions/6970980/multi-pipes-in-c" class="question-hyperlink">multi pipes in C</a>
+</div>
+<div class="spacer">
+<a href="/questions/7140594/multi-pipes-in-c-hang" class="question-hyperlink">multi pipes in C hang</a>
+</div>
+<div class="spacer">
+<a href="/questions/7854110/is-there-an-example-of-forking-and-communicating-with-a-subprocess-in-d" class="question-hyperlink">Is there an example of forking and communicating with a subprocess in D?</a>
+</div>
+<div class="spacer">
+<a href="/questions/7861611/can-someone-explain-what-dup-in-c-does" class="question-hyperlink">Can someone explain what dup() in C does?</a>
+</div>
+<div class="spacer">
+<a href="/questions/7935177/c-dup2-pipe-and-fork-not-working-as-expected" class="question-hyperlink">C: dup2, pipe and fork not working as expected</a>
+</div>
+<div class="spacer">
+<a href="/questions/8812024/pipe-chain-between-processes" class="question-hyperlink">pipe chain between processes</a>
+</div>
+<div class="spacer">
+<a href="/questions/9041796/having-issues-with-pipe-fork-dup2" class="question-hyperlink">Having issues with pipe, fork, dup2</a>
+</div>
+<div class="spacer">
+<a href="/questions/9107156/closing-pipe-dup2-file-descriptors-in-c" class="question-hyperlink">Closing pipe, dup2, file descriptors in C?</a>
+</div>
+<div class="spacer">
+<a href="/questions/9457784/how-to-use-dup2-close-correctly-to-connect-these-three-processes" class="question-hyperlink">How to use dup2/close correctly to connect these three processes?</a>
+</div>
+<div class="spacer">
+<a href="/questions/10054473/troubles-with-a-pipe-and-a-fork" class="question-hyperlink">Troubles with a pipe and a fork</a>
+</div>
+<div class="spacer">
+<a href="/questions/10487234/c-programming-fork-and-pipes" class="question-hyperlink">C programming. Fork and pipes</a>
+</div>
+<div class="spacer">
+<a href="/questions/10489367/redirecting-stdout-and-stdin-through-pipes-and-dup2" class="question-hyperlink">Redirecting stdout and stdin through pipes and dup2</a>
+</div>
+<div class="spacer">
+<a href="/questions/11689421/sending-commands-to-a-child-process-through-pipe-dup2-in-c" class="question-hyperlink">sending commands to a child process through pipe/dup2 in C</a>
+</div>
+<div class="spacer">
+<a href="/questions/12517255/dup2-blocking-printf-but-not-fprintf" class="question-hyperlink">dup2 blocking printf, but not fprintf?</a>
+</div>
+
+        </div>
+    </div>
+        <div class="everyonelovesstackoverflow" id="adzerk3">
+        </div>
+
+
+</div>
+
+<div id="feed-link">
+    <div id="feed-link-text"><a href="/feeds/question/3884103" title="feed of this question and its answers"><span class="feed-icon"></span>question feed</a></div>
+</div>
+<script type="text/javascript">
+StackExchange.ready(function(){$.get('/posts/3884103/ivc/cd24');});
+</script>
+<noscript>
+    <div><img src="/posts/3884103/ivc/cd24" class="dno" alt="" width="0" height="0"></div>
+</noscript><div style="display:none" id="prettify-lang">lang-c</div></div>
+        </div>
+    </div>
+    <div id="footer">
+        <div class="footerwrap">
+            <div id="footer-menu">
+                <a href="/about">about</a> |
+                <a href="/faq">faq</a> |
+                <a href="http://blog.stackexchange.com?blb=1">blog</a> |
+                    <a href="http://chat.stackoverflow.com">chat</a> |
+                <a href="http://data.stackexchange.com">data</a> |
+                <a href="http://stackexchange.com/legal">legal</a> |
+                <a href="http://stackexchange.com/legal/privacy-policy">privacy policy</a> |
+                <a href="http://stackexchange.com/about/hiring">jobs</a> |
+                <a href="http://engine.adzerk.net/redirect/0/2776/2751/0/4de3c60f719c4dfcb1a57531c7050090/0">advertising info</a> |
+
+                <a onclick="StackExchange.switchMobile('on', '/questions/3884103/can-popen-make-bidirectional-pipes-like-pipe-fork')">mobile</a> |
+
+                <b><a href="/help">contact us</a></b>
+                  | <b><a href="http://meta.stackoverflow.com">feedback</a></b>
+                <div id="footer-sites">
+                    
+                        <span style="color:#FE7A15;font-size:140%">&#9632;</span>&nbsp;<a href="http://stackoverflow.com">stackoverflow.com</a>&nbsp; 
+                        <span style="color:#FE7A15;font-size:140%">&#9632;</span>&nbsp;<a href="http://stackapps.com">api/apps</a>&nbsp; 
+                        <span style="color:#FE7A15;font-size:140%">&#9632;</span>&nbsp;<a href="http://careers.stackoverflow.com">careers 2.0</a>&nbsp; 
+                        <span style="color:#E8272C;font-size:140%">&#9632;</span>&nbsp;<a href="http://serverfault.com">serverfault.com</a>&nbsp; 
+                        <span style="color:#00AFEF;font-size:140%">&#9632;</span>&nbsp;<a href="http://superuser.com">superuser.com</a>&nbsp; 
+                        <span style="color:#969696;font-size:140%">&#9632;</span>&nbsp;<a href="http://meta.stackoverflow.com">meta</a>&nbsp; 
+                        <span style="color:#46937D;font-size:140%">&#9632;</span>&nbsp;<a href="http://area51.stackexchange.com">area&nbsp;51</a>&nbsp; 
+                        <span style="color:#C0D0DC;font-size:140%">&#9632;</span>&nbsp;<a href="http://webapps.stackexchange.com">webapps</a>&nbsp; 
+                        <span style="color:#000000;font-size:140%">&#9632;</span>&nbsp;<a href="http://gaming.stackexchange.com">gaming</a>&nbsp; 
+                        <span style="color:#dd4814;font-size:140%">&#9632;</span>&nbsp;<a href="http://askubuntu.com">ubuntu</a>&nbsp; 
+                        <span style="color:#9ce4fe;font-size:140%">&#9632;</span>&nbsp;<a href="http://webmasters.stackexchange.com">webmasters</a>&nbsp; 
+                        <span style="color:#cf4d3f;font-size:140%">&#9632;</span>&nbsp;<a href="http://cooking.stackexchange.com">cooking</a>&nbsp; 
+                        <span style="color:#f4f28d;font-size:140%">&#9632;</span>&nbsp;<a href="http://gamedev.stackexchange.com">game development</a>&nbsp; 
+                        <span style="color:#0f3559;font-size:140%">&#9632;</span>&nbsp;<a href="http://math.stackexchange.com">math</a>&nbsp; 
+                        <span style="color:#f2f2f2;font-size:140%">&#9632;</span>&nbsp;<a href="http://photo.stackexchange.com">photography</a>&nbsp; 
+                        <span style="color:#037187;font-size:140%">&#9632;</span>&nbsp;<a href="http://stats.stackexchange.com">stats</a>&nbsp; 
+                        <span style="color:#f1e7cc;font-size:140%">&#9632;</span>&nbsp;<a href="http://tex.stackexchange.com">tex</a>&nbsp; 
+                        <span style="color:#e1cdae;font-size:140%">&#9632;</span>&nbsp;<a href="http://english.stackexchange.com">english</a>&nbsp; 
+                        <span style="color:#a2d9f6;font-size:140%">&#9632;</span>&nbsp;<a href="http://cstheory.stackexchange.com">theoretical cs</a>&nbsp; 
+                        <span style="color:#1b3e6c;font-size:140%">&#9632;</span>&nbsp;<a href="http://programmers.stackexchange.com">programmers</a>&nbsp; 
+                        <span style="color:#293a5d;font-size:140%">&#9632;</span>&nbsp;<a href="http://unix.stackexchange.com">unix</a>&nbsp;
+                        <span style="color:#bec0cb;font-size:140%">&#9632;</span>&nbsp;<a href="http://apple.stackexchange.com">apple</a>&nbsp;
+                        <span style="color:#939185;font-size:140%">&#9632;</span>&nbsp;<a href="http://wordpress.stackexchange.com">wordpress</a>&nbsp;
+                        <span style="color:#ebf5f5;font-size:140%">&#9632;</span>&nbsp;<a href="http://physics.stackexchange.com">physics</a>&nbsp;
+                        <span style="color:#4176ab;font-size:140%">&#9632;</span>&nbsp;<a href="http://diy.stackexchange.com">home&nbsp;improvement</a>&nbsp;
+                        <span style="color:#d1d8d7;font-size:140%">&#9632;</span>&nbsp;<a href="http://gis.stackexchange.com">gis</a>&nbsp;
+                        <span style="color:#e5e2d3;font-size:140%">&#9632;</span>&nbsp;<a href="http://electronics.stackexchange.com">electrical&nbsp;engineering</a>&nbsp;
+                        <span style="color:#a4c639;font-size:140%">&#9632;</span>&nbsp;<a href="http://android.stackexchange.com">android</a>&nbsp;
+                        <span style="color:#2e4e60;font-size:140%">&#9632;</span>&nbsp;<a href="http://security.stackexchange.com">security</a>&nbsp;
+                        <span style="color:#45bcb5;font-size:140%">&#9632;</span>&nbsp;<a href="http://bicycles.stackexchange.com">bicycles</a>&nbsp;
+                        <span style="color:#00adee;font-size:140%">&#9632;</span>&nbsp;<a href="http://dba.stackexchange.com">dba</a>&nbsp;
+                        <span style="color:#2edaf0;font-size:140%">&#9632;</span>&nbsp;<a href="http://drupal.stackexchange.com">drupal</a>&nbsp;
+                        <span style="color:#213951;font-size:140%">&#9632;</span>&nbsp;<a href="http://sharepoint.stackexchange.com">sharepoint</a>&nbsp;
+                        <span style="color:#73abb3;font-size:140%">&#9632;</span>&nbsp;<a href="http://scifi.stackexchange.com">scifi &amp; fantasy</a>&nbsp;
+                        <span style="color:#23629F;font-size:140%">&#9632;</span>&nbsp;<a href="http://ux.stackexchange.com">user experience</a>&nbsp;
+                        <span style="color:#faff72;font-size:140%">&#9632;</span>&nbsp;<a href="http://skeptics.stackexchange.com">skeptics</a>&nbsp;
+                        <span style="color:#623121;font-size:140%">&#9632;</span>&nbsp;<a href="http://rpg.stackexchange.com">rpg</a>&nbsp;
+                        <span style="color:#e4be88;font-size:140%">&#9632;</span>&nbsp;<a href="http://judaism.stackexchange.com">judaism</a>&nbsp;
+                        <span style="color:#ffecb1;font-size:140%">&#9632;</span>&nbsp;<a href="http://mathematica.stackexchange.com">mathematica</a>&nbsp;
+                </div>
+            </div>
+            <div id="footer-flair">
+                <a class="peer1" href="http://www.peer1.com/stackoverflow"></a>  
+	            <a href="http://creativecommons.org/licenses/by-sa/3.0/" class="cc-wiki-link"></a>
+                <div id="svnrev">rev 2012.11.16.374</div>
+                        </div>
+            <div id="copyright">
+                site design / logo &copy; 2012 stack exchange inc; 
+                user contributions licensed under <a href="http://creativecommons.org/licenses/by-sa/3.0/" rel="license">cc-wiki</a> with <a href="http://blog.stackoverflow.com/2009/06/attribution-required/" rel="license">attribution required</a>
+            </div>
+            
+
+        </div>
+    </div>
+    
+    <noscript>
+        <div id="noscript-warning">Stack Overflow works best with JavaScript enabled<img src="http://pixel.quantserve.com/pixel/p-c1rF4kxgLUzNc.gif" alt="" class="dno"></div>
+    </noscript>
+    <script type="text/javascript">var _gaq=_gaq||[];_gaq.push(['_setAccount','UA-5620270-1']);
+        _gaq.push(['_setCustomVar', 1, 'tags', '|c|fork|pipe|popen|dup2|']); 
+_gaq.push(['_trackPageview']);
+    var _qevents = _qevents || [];
+    (function(){
+        var s=document.getElementsByTagName('script')[0];
+        var ga=document.createElement('script');
+        ga.type='text/javascript';
+        ga.async=true;
+        ga.src='http://www.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(ga,s);
+        var sc=document.createElement('script');
+        sc.type='text/javascript';
+        sc.async=true;
+        sc.src='http://edge.quantserve.com/quant.js'; 
+        s.parentNode.insertBefore(sc,s);
+    })();
+    </script>
+    <script type="text/javascript">
+        _qevents.push({ qacct: "p-c1rF4kxgLUzNc" });
+    </script>    
+    
+</body>
+</html>

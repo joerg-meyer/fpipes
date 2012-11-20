@@ -6,5 +6,6 @@ fpipes-test : fpipes.f90 fpipes-test.f90
 example-run : fpipes-test dummy.sh
 	./fpipes-test ./dummy.sh
 	
-clean : fpipes.mod fpipes-test
-	-rm $^
+clean : 
+	@rm fpipes.{o,mod}
+	@rm fpipes-test
